@@ -3,7 +3,13 @@
 <head><meta charset="UTF-8"><title>Signing in...</title></head>
 <body>
 <script>
-  window.location.href = '/' + window.location.search;
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (code) {
+    window.location.href = '/?code=' + encodeURIComponent(code);
+  } else {
+    window.location.href = '/';
+  }
 </script>
 <p>Signing in, please wait...</p>
 </body>
