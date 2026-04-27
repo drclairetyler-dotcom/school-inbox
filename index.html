@@ -504,11 +504,13 @@ function addDay() {
   document.getElementById('sd-date').value='';
 }
 
-async function callAPI(messages, system) {
+async function callAPI(messages, system, mcp_servers) {
+  const body = { messages, system, max_tokens: 1500 };
+  if (mcp_servers) body.mcp_servers = mcp_servers;
   const res = await fetch('/.netlify/functions/claude', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, system, max_tokens: 1500 })
+    body: JSON.stringify(body)
   });
   if (!res.ok) throw new Error('API error');
   return res.json();
@@ -564,7 +566,8 @@ async function scanGmail() {
   try {
     const data = await callAPI(
       [{role:'user',content:`Today is ${today}. Scan my last 50 Gmail emails including any PDF attachments. I am a parent at Bovingdon Primary Academy. My children are in Year 2 and Year 6. Extract all tasks and all special school days from newsletters and letters.`}],
-      SYSTEM.replace('DATE_TODAY',today)
+      SYSTEM.replace('DATE_TODAY',today),
+      [{type:'url',url:'https://gmailmcp.googleapis.com/mcp/v1',name:'gmail-mcp'}]
     );
     const {tasks:nt=[],days:nd=[]} = parseOut(data);
     const newTasks = nt.map(t=>makeTask(t,'gmail'));
