@@ -717,7 +717,7 @@ async function handleUpload(e) {
   label.childNodes[0].textContent='Processing...';
   const text=await file.text(); const today=new Date().toISOString().split('T')[0];
   try {
-    const data=await callAPI([{role:'user',content:`Today is ${today}. Parent at Bovingdon Primary, Year 2 and Year 6.\n\n${text}`}],SYSTEM.replace('DATE_TODAY',today));
+    const data=await callAPI([{role:'user',content:`Today is ${today}. Parent at Bovingdon Primary, Year 2 and Year 6.\n\n${text.slice(-15000)}`}],SYSTEM.replace('DATE_TODAY',today));
     const {tasks:nt=[],days:nd=[]}=parseOut(data);
     const newTasks=nt.map(t=>makeTask(t,'whatsapp')); const newDays=nd.map(d=>makeDay(d,'whatsapp'));
     tasks=[...newTasks,...tasks]; days=[...newDays,...days];
@@ -732,7 +732,7 @@ async function extractPaste() {
   status.innerHTML='<div class="loading-row"><span class="spinner"></span>Extracting...</div>';
   const today=new Date().toISOString().split('T')[0];
   try {
-    const data=await callAPI([{role:'user',content:`Today is ${today}. Parent at Bovingdon Primary, Year 2 and Year 6.\n\n${text}`}],SYSTEM.replace('DATE_TODAY',today));
+    const data=await callAPI([{role:'user',content:`Today is ${today}. Parent at Bovingdon Primary, Year 2 and Year 6.\n\n${text.slice(-15000)}`}],SYSTEM.replace('DATE_TODAY',today));
     const {tasks:nt=[],days:nd=[]}=parseOut(data);
     const newTasks=nt.map(t=>makeTask(t,'whatsapp')); const newDays=nd.map(d=>makeDay(d,'whatsapp'));
     tasks=[...newTasks,...tasks]; days=[...newDays,...days];
