@@ -94,7 +94,7 @@ exports.handler = async (event) => {
     // Call Claude API
     if (action === 'claude') {
       const { messages, system, max_tokens = 1500 } = body;
-      const payload = { model: 'claude-sonnet-4-5-20251001', max_tokens, messages };
+      const payload = { model: 'claude-haiku-4-5-20251001', max_tokens, messages };
       if (system) payload.system = system;
 
       const resp = await fetch('https://api.anthropic.com/v1/messages', {
