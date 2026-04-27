@@ -577,10 +577,13 @@ async function handleAuthCallback() {
     refreshToken = data.refresh_token;
     localStorage.setItem('si_refresh_token', refreshToken);
   }
-  updateGmailUI();
+updateGmailUI();
   showTab('sources');
   document.getElementById('gmail-status').textContent = 'Connected! Ready to scan.';
-}
+  if (accessToken || refreshToken) {
+    document.getElementById('gmail-signed-out').style.display = 'none';
+    document.getElementById('gmail-signed-in').style.display = 'block';
+  }
 
 async function callAPI(messages, system) {
   const res = await fetch('/.netlify/functions/claude', {
