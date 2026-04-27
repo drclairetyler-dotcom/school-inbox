@@ -560,30 +560,30 @@ async function getValidToken() {
 }
 
 async function handleAuthCallback() {
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
+  const code = sessionStorage.getItem('oauth_code');
   if (!code) return;
-  window.history.replaceState({}, '', '/');
-  const res = await fetch('/.netlify/functions/claude', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'exchange_code', code })
-  });
-  const data = await res.json();
-  if (data.access_token) {
-    accessToken = data.access_token;
-    localStorage.setItem('si_access_token', accessToken);
+  sessionStorage.removeItem('oauth_code');
+  try {
+    const res = await fetch('/.netlify/functions/claude', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'exchange_code', code })
+    });
+    const data = await res.json();
+    if (data.access_token) {
+      accessToken = data.access_token;
+      localStorage.setItem('si_access_token', accessToken);
+    }
+    if (data.refresh_token) {
+      refreshToken = data.refresh_token;
+      localStorage.setItem('si_refresh_token', refreshToken);
+    }
+    updateGmailUI();
+    showTab('sources');
+    document.getElementById('gmail-status').textContent = 'Connected! Ready to scan.';
+  } catch(e) {
+    console.error('Auth error:', e);
   }
-  if (data.refresh_token) {
-    refreshToken = data.refresh_token;
-    localStorage.setItem('si_refresh_token', refreshToken);
-  }
-updateGmailUI();
-  showTab('sources');
-  document.getElementById('gmail-status').textContent = 'Connected! Ready to scan.';
-  if (accessToken || refreshToken) {
-    document.getElementById('gmail-signed-out').style.display = 'none';
-    document.getElementById('gmail-signed-in').style.display = 'block';
-  }
+}
 
 async function callAPI(messages, system) {
   const res = await fetch('/.netlify/functions/claude', {
