@@ -243,8 +243,14 @@
               <div class="source-sub">Reads PDFs too</div>
             </div>
           </div>
-          <button class="primary-btn" id="gmail-btn" onclick="scanGmail()">Scan inbox</button>
-          <div class="status-text" id="gmail-status">Emails + PDF newsletters</div>
+          <div id="gmail-signed-out">
+            <button class="primary-btn" onclick="signInWithGoogle()">Sign in with Google</button>
+          </div>
+          <div id="gmail-signed-in" style="display:none;">
+            <button class="primary-btn" id="gmail-btn" onclick="scanGmail()">Scan inbox</button>
+            <button class="act-btn" style="width:100%;margin-top:6px;text-align:center;" onclick="signOut()">Sign out</button>
+          </div>
+          <div class="status-text" id="gmail-status">Reads emails + newsletters</div>
         </div>
         <div class="source-card">
           <div class="source-head">
@@ -504,13 +510,83 @@ function addDay() {
   document.getElementById('sd-date').value='';
 }
 
-async function callAPI(messages, system, mcp_servers) {
-  const body = { messages, system, max_tokens: 1500 };
-  if (mcp_servers) body.mcp_servers = mcp_servers;
+const CLIENT_ID = '133784275625-fug6gj7d5s2kivpr4v5mca5sf36r1iet.apps.googleusercontent.com';
+const REDIRECT_URI = window.location.origin + '/auth/callback';
+const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+
+let accessToken = localStorage.getItem('si_access_token') || null;
+let refreshToken = localStorage.getItem('si_refresh_token') || null;
+
+function updateGmailUI() {
+  const signedin = !!(accessToken || refreshToken);
+  document.getElementById('gmail-signed-out').style.display = signedin ? 'none' : 'block';
+  document.getElementById('gmail-signed-in').style.display = signedin ? 'block' : 'none';
+}
+
+function signInWithGoogle() {
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    redirect_uri: REDIRECT_URI,
+    response_type: 'code',
+    scope: SCOPES,
+    access_type: 'offline',
+    prompt: 'consent',
+  });
+  window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params;
+}
+
+function signOut() {
+  localStorage.removeItem('si_access_token');
+  localStorage.removeItem('si_refresh_token');
+  accessToken = null; refreshToken = null;
+  updateGmailUI();
+  document.getElementById('gmail-status').textContent = 'Signed out';
+}
+
+async function getValidToken() {
+  if (accessToken) return accessToken;
+  if (!refreshToken) throw new Error('Not signed in');
+  const res = await fetch('/.netlify/functions/claude', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'refresh_token', refresh_token: refreshToken })
+  });
+  const data = await res.json();
+  if (data.access_token) {
+    accessToken = data.access_token;
+    localStorage.setItem('si_access_token', accessToken);
+    return accessToken;
+  }
+  throw new Error('Token refresh failed');
+}
+
+async function handleAuthCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (!code) return;
+  window.history.replaceState({}, '', '/');
+  const res = await fetch('/.netlify/functions/claude', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'exchange_code', code })
+  });
+  const data = await res.json();
+  if (data.access_token) {
+    accessToken = data.access_token;
+    localStorage.setItem('si_access_token', accessToken);
+  }
+  if (data.refresh_token) {
+    refreshToken = data.refresh_token;
+    localStorage.setItem('si_refresh_token', refreshToken);
+  }
+  updateGmailUI();
+  showTab('sources');
+  document.getElementById('gmail-status').textContent = 'Connected! Ready to scan.';
+}
+
+async function callAPI(messages, system) {
   const res = await fetch('/.netlify/functions/claude', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+    body: JSON.stringify({ action: 'claude', messages, system, max_tokens: 1500 })
   });
   if (!res.ok) throw new Error('API error');
   return res.json();
@@ -561,13 +637,21 @@ function makeDay(d, src) { return {id:uid(),title:d.title,date:d.date,what:d.wha
 
 async function scanGmail() {
   const btn=document.getElementById('gmail-btn'), status=document.getElementById('gmail-status');
-  btn.disabled=true; btn.textContent='Scanning...'; status.textContent='Reading emails and PDFs...';
+  btn.disabled=true; btn.textContent='Scanning...'; status.textContent='Reading emails...';
   const today=new Date().toISOString().split('T')[0];
   try {
+    const token = await getValidToken();
+    const gmailRes = await fetch('/.netlify/functions/claude', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'read_gmail', access_token: token })
+    });
+    const { emails = [] } = await gmailRes.json();
+    if (emails.length === 0) { status.textContent = 'No emails found'; btn.disabled=false; btn.textContent='Scan inbox'; return; }
+    status.textContent = `Read ${emails.length} emails, extracting tasks...`;
+    const emailText = emails.map(e => `From: ${e.from}\nSubject: ${e.subject}\nDate: ${e.date}\n\n${e.body}`).join('\n---\n');
     const data = await callAPI(
-      [{role:'user',content:`Today is ${today}. Scan my last 50 Gmail emails including any PDF attachments. I am a parent at Bovingdon Primary Academy. My children are in Year 2 and Year 6. Extract all tasks and all special school days from newsletters and letters.`}],
-      SYSTEM.replace('DATE_TODAY',today),
-      [{type:'url',url:'https://gmailmcp.googleapis.com/mcp/v1',name:'gmail-mcp'}]
+      [{role:'user',content:`Today is ${today}. I am a parent at Bovingdon Primary Academy. My children are in Year 2 and Year 6. Here are my recent emails:\n\n${emailText.slice(0,12000)}`}],
+      SYSTEM.replace('DATE_TODAY',today)
     );
     const {tasks:nt=[],days:nd=[]} = parseOut(data);
     const newTasks = nt.map(t=>makeTask(t,'gmail'));
@@ -576,7 +660,10 @@ async function scanGmail() {
     saveTasks(); saveDays(); renderAll(); checkReminders(newDays);
     showTab(newDays.length>0?'days':'tasks');
     status.textContent = `Found ${newTasks.length} task${newTasks.length!==1?'s':''}, ${newDays.length} event${newDays.length!==1?'s':''}`;
-  } catch(e) { status.textContent='Error — please try again'; }
+  } catch(e) {
+    if (e.message === 'Not signed in') { status.textContent='Please sign in first'; updateGmailUI(); }
+    else { status.textContent='Error — please try again'; console.error(e); }
+  }
   btn.disabled=false; btn.textContent='Scan inbox';
 }
 
@@ -615,6 +702,8 @@ async function extractPaste() {
 }
 
 function renderAll() { renderTasks(); renderDays(); renderAlerts(); }
+handleAuthCallback();
+updateGmailUI();
 renderAll();
 if(reminderEmail) document.getElementById('email-saved').textContent='Reminders going to '+reminderEmail;
 checkReminders(days);
