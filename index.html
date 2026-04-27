@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#ffffff" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="School Inbox" />
+<title>School Inbox</title>
+<link rel="manifest" href="/manifest.json" />
+<link rel="apple-touch-icon" href="/icons/icon-192.png" />
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f5f5f3;
+    --bg3: #eeede9;
+    --text: #1a1a18;
+    --text2: #6b6b67;
+    --text3: #9b9b96;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.18);
+    --red-bg: #fce8e6; --red-text: #c5221f; --red-border: #f5c4b3;
+    --amber-bg: #faeeda; --amber-text: #854f0b; --amber-border: #FAC775;
+    --green-bg: #e7f5e9; --green-text: #1e7e34;
+    --blue-bg: #E6F1FB; --blue-text: #0C447C;
+    --purple-bg: #EEEDFE; --purple-text: #3C3489;
+    --r-md: 8px; --r-lg: 12px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1a; --bg2: #252523; --bg3: #2e2e2b;
+      --text: #f0efe9; --text2: #a0a09a; --text3: #6a6a64;
+      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.18);
+      --red-bg: #3a1a18; --red-text: #f09595;
+      --amber-bg: #2e2210; --amber-text: #FAC775;
+      --green-bg: #0f2415; --green-text: #5DCAA5;
+      --blue-bg: #0c1e2e; --blue-text: #85B7EB;
+      --purple-bg: #1a1830; --purple-text: #AFA9EC;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 16px; }
+
+  #app { display: flex; flex-direction: column; height: 100%; padding-top: var(--safe-top); }
+
+  /* Header */
+  .app-header { padding: 16px 16px 0; }
+  .app-header h1 { font-size: 22px; font-weight: 600; color: var(--text); }
+  .app-header p { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+  /* Alert banners */
+  #alert-area { padding: 0 16px; margin-top: 12px; }
+  .alert { border-radius: var(--r-lg); padding: 12px 14px; margin-bottom: 8px; border: 0.5px solid; }
+  .alert.today { background: var(--red-bg); border-color: var(--red-border); }
+  .alert.today .alert-title { color: var(--red-text); font-size: 13px; font-weight: 600; }
+  .alert.prep { background: var(--amber-bg); border-color: var(--amber-border); }
+  .alert.prep .alert-title { color: var(--amber-text); font-size: 13px; font-weight: 600; }
+  .alert-sub { font-size: 12px; color: var(--text2); margin-top: 3px; }
+  .alert-what { font-size: 12px; font-weight: 500; color: var(--text); margin-top: 4px; }
+
+  /* Tabs */
+  .tabs { display: flex; border-bottom: 0.5px solid var(--border); margin-top: 12px; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn { font-size: 13px; padding: 10px 14px; color: var(--text2); border-bottom: 2px solid transparent; margin-bottom: -0.5px; background: none; border-left: none; border-right: none; border-top: none; white-space: nowrap; flex-shrink: 0; cursor: pointer; font-family: inherit; }
+  .tab-btn.active { color: var(--text); font-weight: 600; border-bottom-color: var(--text); }
+
+  /* Scrollable content */
+  .tab-content { flex: 1; overflow-y: auto; padding: 12px 16px calc(16px + var(--safe-bottom)); }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* Filter chips */
+  .chips { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .chip { font-size: 12px; padding: 5px 13px; border-radius: 20px; border: 0.5px solid var(--border); background: var(--bg); cursor: pointer; color: var(--text2); font-family: inherit; }
+  .chip.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+  /* Task cards */
+  .task-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 12px 14px; margin-bottom: 8px; }
+  .task-card.done { opacity: 0.45; }
+  .task-card.done .task-title { text-decoration: line-through; color: var(--text2); }
+  .task-row { display: flex; gap: 12px; align-items: flex-start; }
+  .cb { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--border2); flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 1px; background: none; }
+  .cb.checked { background: var(--text); border-color: var(--text); }
+  .cb.checked::after { content:''; display:block; width:5px; height:8px; border:1.5px solid var(--bg); border-top:none; border-left:none; transform:rotate(45deg) translateY(-1px); }
+  .task-body { flex: 1; min-width: 0; }
+  .task-title { font-size: 14px; font-weight: 500; color: var(--text); line-height: 1.4; margin-bottom: 5px; }
+  .task-meta { display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+  .dl { font-size: 12px; }
+  .dl.overdue { color: var(--red-text); font-weight: 600; }
+  .dl.soon { color: var(--red-text); }
+  .dl.ok { color: var(--text2); }
+  .dl.none { color: var(--text3); }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; }
+  .tag.email { background: var(--red-bg); color: var(--red-text); }
+  .tag.whatsapp { background: var(--green-bg); color: var(--green-text); }
+  .tag.manual { background: var(--bg2); color: var(--text2); }
+  .tag.yr2 { background: var(--blue-bg); color: var(--blue-text); }
+  .tag.yr6 { background: var(--purple-bg); color: var(--purple-text); }
+  .tag.both { background: var(--bg2); color: var(--text2); }
+  .tag.termdate { background: var(--bg2); color: var(--text2); }
+  .tag.needed { background: var(--amber-bg); color: var(--amber-text); }
+  .tag.info { background: var(--bg2); color: var(--text2); }
+  .tag.sent { background: var(--green-bg); color: var(--green-text); }
+  .task-note { font-size: 12px; color: var(--text2); margin-top: 5px; line-height: 1.5; }
+  .task-actions { display: flex; gap: 4px; flex-shrink: 0; align-items: flex-start; }
+  .act-btn { font-size: 11px; color: var(--text2); background: none; border: none; padding: 3px 7px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+  .act-btn:active { background: var(--bg2); }
+
+  /* Deadline editor */
+  .dl-editor { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
+  .dl-editor input[type=date] { font-size: 12px; padding: 4px 8px; border: 0.5px solid var(--border2); border-radius: var(--r-md); background: var(--bg); color: var(--text); font-family: inherit; }
+  .dl-editor button { font-size: 12px; padding: 4px 10px; border: 0.5px solid var(--border2); border-radius: var(--r-md); background: var(--bg); color: var(--text); font-family: inherit; cursor: pointer; }
+
+  /* Section dividers */
+  .section-div { font-size: 11px; font-weight: 600; color: var(--text2); margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Special day cards */
+  .sd-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 12px 14px; margin-bottom: 8px; display: flex; gap: 12px; align-items: flex-start; }
+  .day-dot { width: 40px; height: 40px; border-radius: var(--r-md); display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
+  .day-dot.green { background: var(--green-bg); }
+  .day-dot.red { background: var(--red-bg); }
+  .day-dot.grey { background: var(--bg2); }
+  .day-dot.dark { background: var(--text); }
+  .day-num { font-size: 15px; font-weight: 600; line-height: 1; }
+  .day-dot.green .day-num { color: var(--green-text); }
+  .day-dot.red .day-num { color: var(--red-text); }
+  .day-dot.grey .day-num { color: var(--text2); }
+  .day-dot.dark .day-num { color: var(--bg); }
+  .day-mon { font-size: 10px; text-transform: uppercase; line-height: 1; margin-top: 2px; }
+  .day-dot.green .day-mon { color: var(--green-text); }
+  .day-dot.red .day-mon { color: var(--red-text); }
+  .day-dot.grey .day-mon { color: var(--text2); }
+  .day-dot.dark .day-mon { color: var(--bg); }
+  .sd-body { flex: 1; min-width: 0; }
+  .sd-title { font-size: 14px; font-weight: 500; color: var(--text); line-height: 1.4; margin-bottom: 4px; }
+  .sd-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 4px; }
+  .sd-diff { font-size: 12px; color: var(--text2); }
+  .sd-what { font-size: 12px; color: var(--text2); display: flex; gap: 5px; align-items: flex-start; margin-top: 4px; }
+  .sd-actions { flex-shrink: 0; }
+
+  /* Collapse toggle */
+  .collapse-toggle { font-size: 13px; color: var(--text2); background: none; border: none; padding: 8px 0; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: inherit; margin-top: 8px; }
+
+  /* Sources tab */
+  .source-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .source-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 14px; }
+  .source-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .source-icon { width: 34px; height: 34px; border-radius: var(--r-md); display: flex; align-items: center; justify-content: center; font-size: 17px; }
+  .source-icon.gmail { background: var(--red-bg); }
+  .source-icon.wa { background: var(--green-bg); }
+  .source-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .source-sub { font-size: 12px; color: var(--text2); }
+  .primary-btn { width: 100%; font-size: 13px; padding: 9px 14px; border-radius: var(--r-md); border: none; background: var(--text); color: var(--bg); font-family: inherit; cursor: pointer; font-weight: 500; }
+  .primary-btn:active { opacity: 0.8; }
+  .primary-btn:disabled { opacity: 0.4; }
+  .status-text { font-size: 11px; color: var(--text2); text-align: center; margin-top: 7px; }
+  .upload-label { display: block; border: 0.5px dashed var(--border2); border-radius: var(--r-md); padding: 12px; text-align: center; font-size: 12px; color: var(--text2); cursor: pointer; margin-top: 8px; }
+  .upload-label:active { background: var(--bg2); }
+  .notice { font-size: 12px; color: var(--text2); background: var(--bg2); border-radius: var(--r-md); padding: 9px 12px; margin-bottom: 12px; line-height: 1.5; }
+  .field-label { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; margin-top: 16px; }
+  textarea, input[type=text], input[type=email], input[type=date], select {
+    width: 100%; font-size: 14px; padding: 10px 12px; border: 0.5px solid var(--border2);
+    border-radius: var(--r-md); background: var(--bg); color: var(--text); font-family: inherit;
+    outline: none; appearance: none; -webkit-appearance: none;
+  }
+  textarea:focus, input:focus, select:focus { border-color: var(--text2); }
+  textarea { resize: vertical; min-height: 80px; }
+  .form-row { display: flex; gap: 8px; }
+  .form-row > * { flex: 1; }
+
+  /* Add tab */
+  .form-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 14px; margin-bottom: 16px; }
+  .section-label { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 10px; }
+
+  /* Loading spinner */
+  .spinner { width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--text2); border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-row { display: flex; align-items: center; font-size: 13px; color: var(--text2); padding: 12px 0; }
+
+  .empty { text-align: center; padding: 2.5rem 1rem; font-size: 14px; color: var(--text2); line-height: 1.6; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="app-header">
+    <h1>School Inbox</h1>
+    <p>Bovingdon Primary · Year 2 &amp; Year 6</p>
+  </div>
+
+  <div id="alert-area"></div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('tasks')">To do</button>
+    <button class="tab-btn" onclick="showTab('days')">School dates <span id="days-badge"></span></button>
+    <button class="tab-btn" onclick="showTab('sources')">Sources</button>
+    <button class="tab-btn" onclick="showTab('add')">+ Add</button>
+  </div>
+
+  <div class="tab-content">
+
+    <!-- TASKS TAB -->
+    <div class="tab-pane active" id="pane-tasks">
+      <div class="chips">
+        <button class="chip active" onclick="setFilter('all',this)">All</button>
+        <button class="chip" onclick="setFilter('gmail',this)">Gmail</button>
+        <button class="chip" onclick="setFilter('whatsapp',this)">WhatsApp</button>
+        <button class="chip" onclick="setFilter('urgent',this)">Due soon</button>
+      </div>
+      <div id="task-list"></div>
+      <button class="collapse-toggle" onclick="toggleDone()">
+        <span id="done-arrow">▶</span> Done (<span id="done-count">0</span>)
+      </button>
+      <div id="done-list" style="display:none;"></div>
+    </div>
+
+    <!-- DAYS TAB -->
+    <div class="tab-pane" id="pane-days">
+      <div class="chips">
+        <button class="chip active" onclick="setDayFilter('all',this)">All</button>
+        <button class="chip" onclick="setDayFilter('yr2',this)">Year 2</button>
+        <button class="chip" onclick="setDayFilter('yr6',this)">Year 6</button>
+        <button class="chip" onclick="setDayFilter('termdate',this)">Term dates</button>
+      </div>
+      <div id="days-list"></div>
+      <button class="collapse-toggle" onclick="togglePast()">
+        <span id="past-arrow">▶</span> Past events (<span id="past-count">0</span>)
+      </button>
+      <div id="past-list" style="display:none;"></div>
+    </div>
+
+    <!-- SOURCES TAB -->
+    <div class="tab-pane" id="pane-sources">
+      <div class="notice">Scanning Gmail reads your Bovingdon newsletters and PDF attachments, and extracts events specific to Year 2 and Year 6.</div>
+      <div class="source-grid">
+        <div class="source-card">
+          <div class="source-head">
+            <div class="source-icon gmail">✉</div>
+            <div>
+              <div class="source-name">Gmail</div>
+              <div class="source-sub">Reads PDFs too</div>
+            </div>
+          </div>
+          <button class="primary-btn" id="gmail-btn" onclick="scanGmail()">Scan inbox</button>
+          <div class="status-text" id="gmail-status">Emails + PDF newsletters</div>
+        </div>
+        <div class="source-card">
+          <div class="source-head">
+            <div class="source-icon wa">💬</div>
+            <div>
+              <div class="source-name">WhatsApp</div>
+              <div class="source-sub">Upload or paste</div>
+            </div>
+          </div>
+          <label class="upload-label" id="upload-label">
+            Upload .txt export
+            <input type="file" accept=".txt" style="display:none" onchange="handleUpload(event)" />
+          </label>
+        </div>
+      </div>
+
+      <div class="field-label">Paste a WhatsApp message</div>
+      <textarea id="wa-paste" placeholder="Paste any message — tasks and school events will be extracted"></textarea>
+      <button class="primary-btn" style="margin-top:8px;" onclick="extractPaste()">Extract</button>
+      <div id="paste-status" style="margin-top:8px;"></div>
+
+      <div class="field-label">Email reminders</div>
+      <div class="notice">You'll get a reminder email 7 days before each event, and again on the morning of the day.</div>
+      <input type="email" id="reminder-email" placeholder="Your email address" />
+      <button class="primary-btn" style="margin-top:8px;" onclick="saveEmail()">Save email</button>
+      <div class="status-text" id="email-saved" style="text-align:left;margin-top:6px;"></div>
+    </div>
+
+    <!-- ADD TAB -->
+    <div class="tab-pane" id="pane-add">
+      <div class="section-label">Add a task</div>
+      <div class="form-card">
+        <input type="text" id="t-title" placeholder="What needs doing?" style="margin-bottom:8px;" />
+        <div class="form-row" style="margin-bottom:8px;">
+          <input type="date" id="t-date" />
+        </div>
+        <textarea id="t-notes" placeholder="Notes (optional)" style="min-height:60px;margin-bottom:8px;"></textarea>
+        <button class="primary-btn" onclick="addTask()">Add task</button>
+      </div>
+
+      <div class="section-label">Add a school date</div>
+      <div class="form-card">
+        <input type="text" id="sd-title" placeholder="e.g. World Book Day, Sports day, School play" style="margin-bottom:8px;" />
+        <div class="form-row" style="margin-bottom:8px;">
+          <input type="date" id="sd-date" />
+        </div>
+        <input type="text" id="sd-what" placeholder="What's needed? e.g. costume, £2, PE kit" style="margin-bottom:8px;" />
+        <select id="sd-year" style="margin-bottom:8px;">
+          <option value="both">Both children</option>
+          <option value="yr2">Year 2 only</option>
+          <option value="yr6">Year 6 only</option>
+        </select>
+        <button class="primary-btn" onclick="addDay()">Add date</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const BOVINGDON_TERM_DATES = [
+  { title:'Spring half term', date:'2026-02-16', what:'School closed Mon 16 – Fri 20 Feb', yearGroup:'both', source:'termdate' },
+  { title:'Spring term ends', date:'2026-03-27', what:'School closes at 1.30pm', yearGroup:'both', source:'termdate' },
+  { title:'INSET day — school closed', date:'2026-04-13', what:'Summer term starts Tue 14 April', yearGroup:'both', source:'termdate' },
+  { title:'Summer term begins', date:'2026-04-14', what:'Back to school after Easter', yearGroup:'both', source:'termdate' },
+  { title:'Bank holiday — school closed', date:'2026-05-04', what:'Early May bank holiday', yearGroup:'both', source:'termdate' },
+  { title:'Summer half term', date:'2026-05-25', what:'School closed Mon 25 – Fri 29 May', yearGroup:'both', source:'termdate' },
+  { title:'Summer term ends', date:'2026-07-23', what:'Last day — school closes at 1.30pm', yearGroup:'both', source:'termdate' },
+];
+
+let tasks = JSON.parse(localStorage.getItem('si_tasks') || '[]');
+let days = JSON.parse(localStorage.getItem('si_days') || 'null');
+let reminderEmail = localStorage.getItem('si_email') || '';
+let showDone = false, showPast = false;
+let taskFilter = 'all', dayFilter = 'all';
+let editingDL = null;
+
+if (days === null) {
+  days = BOVINGDON_TERM_DATES.map(d => ({ ...d, id: uid(), reminderSent: false, addedAt: now() }));
+  saveDays();
+}
+if (reminderEmail) document.getElementById('reminder-email').value = reminderEmail;
+
+function uid() { return Math.random().toString(36).slice(2); }
+function now() { return new Date().toISOString(); }
+function saveTasks() { localStorage.setItem('si_tasks', JSON.stringify(tasks)); }
+function saveDays() { localStorage.setItem('si_days', JSON.stringify(days)); }
+
+function showTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', ['tasks','days','sources','add'][i]===tab));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('pane-'+tab).classList.add('active');
+}
+
+function setFilter(f, el) {
+  taskFilter = f;
+  document.querySelectorAll('#pane-tasks .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderTasks();
+}
+
+function setDayFilter(f, el) {
+  dayFilter = f;
+  document.querySelectorAll('#pane-days .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderDays();
+}
+
+function daysUntil(ds) {
+  if (!ds) return null;
+  const d = new Date(ds); d.setHours(0,0,0,0);
+  const t = new Date(); t.setHours(0,0,0,0);
+  return Math.round((d - t) / 86400000);
+}
+
+function dlLabel(deadline) {
+  const d = daysUntil(deadline);
+  if (d === null) return { text: 'No deadline', cls: 'none' };
+  if (d < 0) return { text: 'Overdue', cls: 'overdue' };
+  if (d === 0) return { text: 'Today', cls: 'soon' };
+  if (d === 1) return { text: 'Tomorrow', cls: 'soon' };
+  if (d <= 3) return { text: `In ${d} days`, cls: 'soon' };
+  return { text: new Date(deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short'}), cls: 'ok' };
+}
+
+function renderTasks() {
+  const pending = tasks.filter(t => {
+    if (t.done) return false;
+    if (taskFilter === 'gmail') return t.source === 'gmail';
+    if (taskFilter === 'whatsapp') return t.source === 'whatsapp';
+    if (taskFilter === 'urgent') { const d=daysUntil(t.deadline); return d!==null&&d>=0&&d<=3; }
+    return true;
+  });
+  const done = tasks.filter(t => t.done);
+  document.getElementById('done-count').textContent = done.length;
+  document.getElementById('task-list').innerHTML = pending.length === 0
+    ? '<div class="empty">No tasks yet.<br>Scan Gmail or paste a WhatsApp message to get started.</div>'
+    : pending.map(t => taskHTML(t, false)).join('');
+  document.getElementById('done-list').innerHTML = done.map(t => taskHTML(t, true)).join('');
+}
+
+function taskHTML(t, isDone) {
+  const dl = dlLabel(t.deadline);
+  const isEd = editingDL === t.id;
+  const dlPart = isEd
+    ? `<div class="dl-editor"><input type="date" id="dle-${t.id}" value="${t.deadline||''}" /><button onclick="saveDL('${t.id}')">Save</button><button onclick="clearDL('${t.id}')">Remove</button><button onclick="cancelDL()">Cancel</button></div>`
+    : `<span class="dl ${dl.cls}" onclick="startDL('${t.id}')" style="cursor:pointer;">${dl.text} ✎</span>`;
+  const srcTag = `<span class="tag ${t.source}">${t.source==='gmail'?'Email':t.source==='whatsapp'?'WhatsApp':'Manual'}</span>`;
+  const noteHTML = t.notes ? `<div class="task-note">${t.notes}</div>` : '';
+  const actions = isDone
+    ? `<button class="act-btn" onclick="toggleTask('${t.id}')">Undo</button><button class="act-btn" onclick="deleteTask('${t.id}')">✕</button>`
+    : `<button class="act-btn" onclick="deleteTask('${t.id}')">✕</button>`;
+  return `<div class="task-card ${isDone?'done':''}">
+    <div class="task-row">
+      <div class="cb ${isDone?'checked':''}" onclick="toggleTask('${t.id}')"></div>
+      <div class="task-body">
+        <div class="task-title">${t.title}</div>
+        <div class="task-meta">${dlPart}${srcTag}</div>
+        ${noteHTML}
+      </div>
+      <div class="task-actions">${actions}</div>
+    </div>
+  </div>`;
+}
+
+function renderDays() {
+  const filterFn = d => {
+    const diff = daysUntil(d.date);
+    if (diff === null || diff < 0) return false;
+    if (dayFilter === 'termdate') return d.source === 'termdate';
+    if (dayFilter === 'yr2') return d.source !== 'termdate' && (d.yearGroup==='yr2'||d.yearGroup==='both');
+    if (dayFilter === 'yr6') return d.source !== 'termdate' && (d.yearGroup==='yr6'||d.yearGroup==='both');
+    return true;
+  };
+  const upcoming = days.filter(filterFn).sort((a,b) => new Date(a.date)-new Date(b.date));
+  const past = days.filter(d => { const diff=daysUntil(d.date); return diff!==null&&diff<0; }).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('past-count').textContent = past.length;
+
+  const events = upcoming.filter(d => d.source !== 'termdate');
+  const terms = upcoming.filter(d => d.source === 'termdate');
+  let html = '';
+  if (events.length > 0) html += '<div class="section-div">School events</div>' + events.map(d => dayHTML(d, false)).join('');
+  if (terms.length > 0) html += '<div class="section-div">Term dates — Bovingdon</div>' + terms.map(d => dayHTML(d, false)).join('');
+  if (!html) html = '<div class="empty">No upcoming dates.<br>Scan Gmail to pull in events from your newsletters.</div>';
+  document.getElementById('days-list').innerHTML = html;
+  document.getElementById('past-list').innerHTML = past.length===0 ? '' : past.map(d=>dayHTML(d,true)).join('');
+
+  const urgentCount = days.filter(d => { const diff=daysUntil(d.date); return d.source!=='termdate'&&diff!==null&&diff>=0&&diff<=7; }).length;
+  document.getElementById('days-badge').textContent = urgentCount > 0 ? `(${urgentCount})` : '';
+}
+
+function dayHTML(d, isPast) {
+  const diff = daysUntil(d.date);
+  const date = new Date(d.date);
+  const dayNum = date.toLocaleDateString('en-GB',{day:'numeric'});
+  const mon = date.toLocaleDateString('en-GB',{month:'short'});
+  const isToday = diff===0, isUrgent = diff!==null&&diff>=0&&diff<=7;
+  const isTerm = d.source==='termdate';
+  const dotCls = isToday?'dark':isUrgent?'red':isTerm?'grey':'green';
+  const diffLabel = isToday?'Today!':diff===1?'Tomorrow':diff!==null&&diff>0?`In ${diff} days`:isPast?date.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
+  const yrTag = !isTerm&&d.yearGroup ? `<span class="tag ${d.yearGroup}">${d.yearGroup==='yr2'?'Year 2':d.yearGroup==='yr6'?'Year 6':'Both'}</span>` : '';
+  const termTag = isTerm ? `<span class="tag termdate">Term date</span>` : '';
+  const sentTag = d.reminderSent ? `<span class="tag sent">Reminder sent</span>` : '';
+  const whatHTML = d.what ? `<div class="sd-what"><span class="tag ${isTerm?'info':'needed'}">${isTerm?'Info':'Needed'}</span><span>${d.what}</span></div>` : '';
+  return `<div class="sd-card">
+    <div class="day-dot ${dotCls}"><span class="day-num">${dayNum}</span><span class="day-mon">${mon}</span></div>
+    <div class="sd-body">
+      <div class="sd-title">${d.title}</div>
+      <div class="sd-meta"><span class="sd-diff">${diffLabel}</span>${yrTag}${termTag}${sentTag}</div>
+      ${whatHTML}
+    </div>
+    <div class="sd-actions"><button class="act-btn" onclick="deleteDay('${d.id}')">✕</button></div>
+  </div>`;
+}
+
+function renderAlerts() {
+  const alerts = days.filter(d => d.source !== 'termdate').map(d => {
+    const diff = daysUntil(d.date);
+    const yr = d.yearGroup==='yr2'?'Year 2':d.yearGroup==='yr6'?'Year 6':'';
+    if (diff === 0) return `<div class="alert today"><div class="alert-title">Today: ${d.title}${yr?' ('+yr+')':''}</div>${d.what?'<div class="alert-what">'+d.what+'</div>':''}</div>`;
+    if (diff !== null && diff > 0 && diff <= 7) return `<div class="alert prep"><div class="alert-title">In ${diff} day${diff!==1?'s':''}: ${d.title}${yr?' ('+yr+')':''}</div>${d.what?'<div class="alert-sub">'+d.what+'</div>':''}</div>`;
+    return '';
+  }).filter(Boolean).join('');
+  document.getElementById('alert-area').innerHTML = alerts;
+}
+
+function startDL(id) { editingDL=id; renderTasks(); setTimeout(()=>{ const el=document.getElementById('dle-'+id); if(el)el.focus(); },50); }
+function cancelDL() { editingDL=null; renderTasks(); }
+function saveDL(id) { const v=document.getElementById('dle-'+id)?.value; const t=tasks.find(t=>t.id===id); if(t){t.deadline=v||null;saveTasks();} editingDL=null; renderTasks(); }
+function clearDL(id) { const t=tasks.find(t=>t.id===id); if(t){t.deadline=null;saveTasks();} editingDL=null; renderTasks(); }
+function toggleTask(id) { const t=tasks.find(t=>t.id===id); if(t){t.done=!t.done;saveTasks();renderTasks();} }
+function deleteTask(id) { tasks=tasks.filter(t=>t.id!==id); saveTasks(); renderTasks(); }
+function deleteDay(id) { days=days.filter(d=>d.id!==id); saveDays(); renderAll(); }
+function toggleDone() { showDone=!showDone; document.getElementById('done-list').style.display=showDone?'block':'none'; document.getElementById('done-arrow').textContent=showDone?'▼':'▶'; }
+function togglePast() { showPast=!showPast; document.getElementById('past-list').style.display=showPast?'block':'none'; document.getElementById('past-arrow').textContent=showPast?'▼':'▶'; }
+
+function saveEmail() {
+  reminderEmail = document.getElementById('reminder-email').value.trim();
+  localStorage.setItem('si_email', reminderEmail);
+  document.getElementById('email-saved').textContent = reminderEmail ? 'Saved — reminders going to ' + reminderEmail : '';
+}
+
+function addTask() {
+  const title = document.getElementById('t-title').value.trim(); if(!title) return;
+  tasks.unshift({ id:uid(), title, deadline:document.getElementById('t-date').value||null, notes:document.getElementById('t-notes').value.trim()||null, source:'manual', done:false, addedAt:now() });
+  saveTasks(); renderTasks(); showTab('tasks');
+  ['t-title','t-notes'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('t-date').value='';
+}
+
+function addDay() {
+  const title=document.getElementById('sd-title').value.trim(); const date=document.getElementById('sd-date').value;
+  if(!title||!date) return;
+  const d={ id:uid(), title, date, what:document.getElementById('sd-what').value.trim()||null, yearGroup:document.getElementById('sd-year').value||'both', source:'manual', reminderSent:false, addedAt:now() };
+  days.push(d); saveDays(); renderAll(); checkReminders([d]); showTab('days');
+  ['sd-title','sd-what'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('sd-date').value='';
+}
+
+async function callAPI(messages, system) {
+  const res = await fetch('/.netlify/functions/claude', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, system, max_tokens: 1500 })
+  });
+  if (!res.ok) throw new Error('API error');
+  return res.json();
+}
+
+async function checkReminders(daysToCheck) {
+  if (!reminderEmail) return;
+  for (const d of daysToCheck) {
+    if (d.reminderSent || d.source==='termdate') continue;
+    const diff = daysUntil(d.date);
+    if (diff!==0 && diff!==7) continue;
+    const yr = d.yearGroup==='yr2'?'Year 2':d.yearGroup==='yr6'?'Year 6':'both children';
+    const subject = diff===0 ? `Today at Bovingdon: ${d.title} (${yr})` : `One week reminder — ${d.title} (${yr}), ${new Date(d.date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}`;
+    const body = `${diff===0?'Today is':'In one week:'} ${d.title} for ${yr} at Bovingdon Primary.\n\nDate: ${new Date(d.date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}${d.what?'\n\nDon\'t forget: '+d.what:''}`;
+    try {
+      await callAPI([{role:'user',content:`Send a reminder email to ${reminderEmail}.\nSubject: ${subject}\nBody:\n${body}`}], 'You send reminder emails using Gmail MCP. Send the email as instructed and confirm with "sent".');
+      const idx = days.findIndex(s=>s.id===d.id);
+      if(idx>=0){days[idx].reminderSent=true;saveDays();}
+    } catch(e){}
+  }
+  renderDays();
+}
+
+const SYSTEM = `You are helping a parent whose children attend Bovingdon Primary Academy in Hertfordshire, UK. One child is in Year 2, the other in Year 6.
+
+Extract TWO types of items only:
+
+1. TASKS: things the parent needs to do or return by a deadline — permission slips, payments, forms, replies.
+
+2. SPECIAL DAYS: specific dates where a child needs to wear something, bring something, or attend something. This includes non-uniform/dress-up days, performances, concerts, plays, sports days, trips, residentials, fundraising days, Year 6 leavers events, transition days. Any day where forgetting = a problem.
+
+yearGroup: "yr2" if only Year 2, "yr6" if only Year 6, "both" if whole school or unspecified.
+
+Return ONLY this JSON, no markdown:
+{"tasks":[{"title":"concise action","deadline":"YYYY-MM-DD or null","notes":"brief context or null"}],"days":[{"title":"event name","date":"YYYY-MM-DD","what":"what to bring/wear or null","yearGroup":"yr2 or yr6 or both"}]}
+
+Today is DATE_TODAY. Only extract items with future dates or overdue tasks.`;
+
+function parseOut(data) {
+  const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+  const match = text.replace(/```json|```/g,'').trim().match(/\{[\s\S]*\}/);
+  if (!match) return {tasks:[],days:[]};
+  try { return JSON.parse(match[0]); } catch(e) { return {tasks:[],days:[]}; }
+}
+
+function makeTask(t, src) { return {id:uid(),title:t.title,deadline:t.deadline||null,notes:t.notes||null,source:src,done:false,addedAt:now()}; }
+function makeDay(d, src) { return {id:uid(),title:d.title,date:d.date,what:d.what||null,yearGroup:d.yearGroup||'both',source:src,reminderSent:false,addedAt:now()}; }
+
+async function scanGmail() {
+  const btn=document.getElementById('gmail-btn'), status=document.getElementById('gmail-status');
+  btn.disabled=true; btn.textContent='Scanning...'; status.textContent='Reading emails and PDFs...';
+  const today=new Date().toISOString().split('T')[0];
+  try {
+    const data = await callAPI(
+      [{role:'user',content:`Today is ${today}. Scan my last 50 Gmail emails including any PDF attachments. I am a parent at Bovingdon Primary Academy. My children are in Year 2 and Year 6. Extract all tasks and all special school days from newsletters and letters.`}],
+      SYSTEM.replace('DATE_TODAY',today)
+    );
+    const {tasks:nt=[],days:nd=[]} = parseOut(data);
+    const newTasks = nt.map(t=>makeTask(t,'gmail'));
+    const newDays = nd.map(d=>makeDay(d,'gmail'));
+    tasks=[...newTasks,...tasks]; days=[...newDays,...days];
+    saveTasks(); saveDays(); renderAll(); checkReminders(newDays);
+    showTab(newDays.length>0?'days':'tasks');
+    status.textContent = `Found ${newTasks.length} task${newTasks.length!==1?'s':''}, ${newDays.length} event${newDays.length!==1?'s':''}`;
+  } catch(e) { status.textContent='Error — please try again'; }
+  btn.disabled=false; btn.textContent='Scan inbox';
+}
+
+async function handleUpload(e) {
+  const file=e.target.files[0]; if(!file) return;
+  const label=document.getElementById('upload-label');
+  label.childNodes[0].textContent='Processing...';
+  const text=await file.text();
+  const today=new Date().toISOString().split('T')[0];
+  try {
+    const data=await callAPI([{role:'user',content:`Today is ${today}. Parent at Bovingdon Primary, children in Year 2 and Year 6.\n\n${text}`}], SYSTEM.replace('DATE_TODAY',today));
+    const {tasks:nt=[],days:nd=[]}=parseOut(data);
+    const newTasks=nt.map(t=>makeTask(t,'whatsapp')); const newDays=nd.map(d=>makeDay(d,'whatsapp'));
+    tasks=[...newTasks,...tasks]; days=[...newDays,...days];
+    saveTasks(); saveDays(); renderAll(); checkReminders(newDays);
+    label.childNodes[0].textContent=`Done — ${newTasks.length} tasks, ${newDays.length} events`;
+  } catch(e) { label.childNodes[0].textContent='Error — try again'; }
+}
+
+async function extractPaste() {
+  const text=document.getElementById('wa-paste').value.trim(); if(!text) return;
+  const status=document.getElementById('paste-status');
+  status.innerHTML='<div class="loading-row"><span class="spinner"></span>Extracting...</div>';
+  const today=new Date().toISOString().split('T')[0];
+  try {
+    const data=await callAPI([{role:'user',content:`Today is ${today}. Parent at Bovingdon Primary, children in Year 2 and Year 6.\n\n${text}`}], SYSTEM.replace('DATE_TODAY',today));
+    const {tasks:nt=[],days:nd=[]}=parseOut(data);
+    const newTasks=nt.map(t=>makeTask(t,'whatsapp')); const newDays=nd.map(d=>makeDay(d,'whatsapp'));
+    tasks=[...newTasks,...tasks]; days=[...newDays,...days];
+    saveTasks(); saveDays(); renderAll(); checkReminders(newDays);
+    document.getElementById('wa-paste').value='';
+    const total=newTasks.length+newDays.length;
+    status.innerHTML = total>0?'':'<div class="notice">Nothing actionable found.</div>';
+    if(total>0) showTab(newDays.length>0?'days':'tasks');
+  } catch(e) { status.innerHTML='<div class="notice">Error — please try again.</div>'; }
+}
+
+function renderAll() { renderTasks(); renderDays(); renderAlerts(); }
+renderAll();
+if(reminderEmail) document.getElementById('email-saved').textContent='Reminders going to '+reminderEmail;
+checkReminders(days);
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
