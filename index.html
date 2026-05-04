@@ -591,15 +591,14 @@ Today is DATE_TODAY. Only extract future dates or overdue tasks.`;
 
 // System prompt for the News tab
 const NEWS_SYSTEM=`You are summarising a Bovingdon Primary Academy newsletter for a parent with one child in Year 2 and one in Year 6.
-The newsletter has a section called "Children of Bovingdon" which contains subsections with explicit year group headings: Nursery, Year 1, Year 2, Year 3, Year 4, Year 5, Year 6 (or similar).
-Each heading is followed by content about only that year group.
-Extract ONLY the content from the "Year 2" section for the yr2 summary, and ONLY the content from the "Year 6" section (which may be labelled "Year 5/6" or "Year 6") for the yr6 summary.
-Do not include content from any other year group sections.
-Summarise what the children have been doing recently: lessons, topics, projects, trips, events, achievements, creative work.
-Focus on things the children have DONE or are currently learning, not upcoming events or admin.
+The newsletter contains a section with year group headings. The text you receive may be jumbled due to a multi-column layout, but each year group's content is introduced by a heading that says exactly "Year 2", "Year 3", "Year 4", "Year 5", "Year 6" etc.
+To find Year 2 content: locate the text immediately following the label "Year 2" and before the next year group label (e.g. "Year 3"). Use ONLY that text.
+To find Year 6 content: locate the text immediately following the label "Year 6" (or "Year 5/6") and before the next section. Use ONLY that text.
+Ignore all content from Nursery, Reception, Year 1, Year 3, Year 4, Year 5.
+Summarise what the children have been doing: lessons, topics, projects, trips, events, achievements, creative work.
 Return ONLY this JSON, no markdown:
 {"yr2":["bullet 1","bullet 2","bullet 3"],"yr6":["bullet 1","bullet 2","bullet 3"],"newsletterDate":"date found in newsletter or null"}
-Each array should have 3–6 bullets. Write warmly and conversationally, as if telling a parent what their child has been up to this week.`;
+3–6 bullets each. Warm, conversational tone, as if telling a parent what their child has been up to this week.`;
 
 function parseOut(data){
   const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
