@@ -15,17 +15,10 @@
 <script src="https://accounts.google.com/gsi/client" async></script>
 <style>
 :root {
-  --ink: #0f172a;
-  --ink2: #475569;
-  --ink3: #94a3b8;
-  --surface: #ffffff;
-  --surface2: #f8fafc;
-  --surface3: #f1f5f9;
-  --border: #e2e8f0;
-  --border2: #cbd5e1;
-  --accent: #6366f1;
-  --accent-light: #eef2ff;
-  --accent-text: #4338ca;
+  --ink: #0f172a; --ink2: #475569; --ink3: #94a3b8;
+  --surface: #ffffff; --surface2: #f8fafc; --surface3: #f1f5f9;
+  --border: #e2e8f0; --border2: #cbd5e1;
+  --accent: #6366f1; --accent-light: #eef2ff; --accent-text: #4338ca;
   --red: #ef4444; --red-light: #fef2f2; --red-text: #b91c1c;
   --amber: #f59e0b; --amber-light: #fffbeb; --amber-text: #92400e;
   --green: #10b981; --green-light: #f0fdf4; --green-text: #065f46;
@@ -33,7 +26,6 @@
   --purple: #8b5cf6; --purple-light: #f5f3ff; --purple-text: #5b21b6;
   --r: 12px; --r-sm: 8px; --r-full: 999px;
   --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -52,21 +44,14 @@
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--surface2); color: var(--ink); font-size: 15px; }
-
 #app { display: flex; flex-direction: column; height: 100%; }
 
-/* Header */
-.header {
-  background: var(--ink);
-  padding: calc(var(--safe-top) + 16px) 20px 0;
-  flex-shrink: 0;
-}
+.header { background: var(--ink); padding: calc(var(--safe-top) + 16px) 20px 0; flex-shrink: 0; }
 .header-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
 .header-title { color: #fff; font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
 .header-sub { color: rgba(255,255,255,0.5); font-size: 12px; margin-top: 2px; }
 .header-date { color: rgba(255,255,255,0.4); font-size: 12px; text-align: right; margin-top: 4px; }
 
-/* Alert banners in header */
 #alert-area { padding: 0 20px 12px; }
 .alert { border-radius: var(--r-sm); padding: 10px 14px; margin-bottom: 6px; }
 .alert.today { background: rgba(239,68,68,0.2); border-left: 3px solid var(--red); }
@@ -76,61 +61,26 @@ html, body { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFo
 .alert-sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
 .alert-what { font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 500; margin-top: 3px; }
 
-/* Nav tabs */
-.nav {
-  background: var(--ink);
-  display: flex;
-  padding: 0 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  flex-shrink: 0;
-}
-.nav-btn {
-  font-size: 13px; font-weight: 500; font-family: inherit;
-  padding: 12px 4px; margin-right: 20px;
-  color: rgba(255,255,255,0.4);
-  background: none; border: none; border-bottom: 2px solid transparent;
-  cursor: pointer; white-space: nowrap; margin-bottom: -1px;
-  transition: color 0.15s;
-}
+.nav { background: var(--ink); display: flex; padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; overflow-x: auto; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
+.nav-btn { font-size: 13px; font-weight: 500; font-family: inherit; padding: 12px 4px; margin-right: 20px; color: rgba(255,255,255,0.4); background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; white-space: nowrap; margin-bottom: -1px; transition: color 0.15s; }
 .nav-btn.active { color: #fff; border-bottom-color: var(--accent); }
 .nav-badge { font-size: 10px; background: var(--red); color: #fff; border-radius: var(--r-full); padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
 
-/* Scrollable content */
 .content { flex: 1; overflow-y: auto; padding: 16px 16px calc(16px + var(--safe-bottom)); }
 .tab-pane { display: none; }
 .tab-pane.active { display: block; }
 
-/* Filter chips */
 .chips { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
 .chips::-webkit-scrollbar { display: none; }
-.chip {
-  font-size: 12px; font-weight: 500; font-family: inherit;
-  padding: 5px 12px; border-radius: var(--r-full);
-  border: 1.5px solid var(--border); background: var(--surface);
-  color: var(--ink2); cursor: pointer; white-space: nowrap;
-  transition: all 0.15s;
-}
+.chip { font-size: 12px; font-weight: 500; font-family: inherit; padding: 5px 12px; border-radius: var(--r-full); border: 1.5px solid var(--border); background: var(--surface); color: var(--ink2); cursor: pointer; white-space: nowrap; transition: all 0.15s; }
 .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-/* Task cards */
-.task-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  padding: 14px 14px 14px 16px;
-  margin-bottom: 8px;
-  box-shadow: var(--shadow);
-  transition: opacity 0.2s;
-}
+.task-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 14px 14px 16px; margin-bottom: 8px; box-shadow: var(--shadow); transition: opacity 0.2s; }
 .task-card.done { opacity: 0.5; }
 .task-card.done .task-title { text-decoration: line-through; color: var(--ink2); }
 .task-row { display: flex; gap: 12px; align-items: flex-start; }
-.cb {
-  width: 20px; height: 20px; border-radius: 50%;
-  border: 2px solid var(--border2); flex-shrink: 0;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  margin-top: 1px; background: none; transition: all 0.15s;
-}
+.cb { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border2); flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 1px; background: none; transition: all 0.15s; }
 .cb.checked { background: var(--accent); border-color: var(--accent); }
 .cb.checked::after { content:''; display:block; width:4px; height:7px; border:2px solid #fff; border-top:none; border-left:none; transform:rotate(45deg) translateY(-1px); }
 .task-body { flex: 1; min-width: 0; }
@@ -157,99 +107,47 @@ html, body { height: 100%; font-family: 'Inter', -apple-system, BlinkMacSystemFo
 .act-btn { font-size: 12px; color: var(--ink3); background: none; border: none; padding: 4px 6px; border-radius: var(--r-sm); cursor: pointer; font-family: inherit; }
 .act-btn:hover { background: var(--surface3); color: var(--ink2); }
 
-/* Deadline editor */
 .dl-editor { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 6px; }
 .dl-editor input[type=date] { font-size: 12px; padding: 4px 8px; border: 1px solid var(--border2); border-radius: var(--r-sm); background: var(--surface); color: var(--ink); font-family: inherit; }
 .dl-editor button { font-size: 12px; padding: 4px 10px; border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--surface); color: var(--ink); font-family: inherit; cursor: pointer; }
 
-/* Section divider */
 .section-div { font-size: 11px; font-weight: 600; color: var(--ink3); margin: 18px 0 10px; text-transform: uppercase; letter-spacing: 0.06em; }
-
-/* Collapse toggle */
 .collapse-toggle { font-size: 13px; color: var(--ink2); background: none; border: none; padding: 10px 0; cursor: pointer; display: flex; align-items: center; gap: 6px; font-family: inherit; margin-top: 4px; }
 
-/* Special day cards */
-.sd-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r);
-  padding: 14px;
-  margin-bottom: 8px;
-  box-shadow: var(--shadow);
-  display: flex; gap: 12px; align-items: flex-start;
-}
+.sd-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; margin-bottom: 8px; box-shadow: var(--shadow); display: flex; gap: 12px; align-items: flex-start; }
 .sd-card.past { opacity: 0.45; }
-.day-dot {
-  width: 44px; height: 44px; border-radius: var(--r-sm);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-.day-dot.green { background: var(--green-light); }
-.day-dot.red { background: var(--red-light); }
-.day-dot.grey { background: var(--surface3); }
-.day-dot.dark { background: var(--accent); }
+.day-dot { width: 44px; height: 44px; border-radius: var(--r-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
+.day-dot.green { background: var(--green-light); } .day-dot.red { background: var(--red-light); } .day-dot.grey { background: var(--surface3); } .day-dot.dark { background: var(--accent); }
 .day-num { font-size: 16px; font-weight: 700; line-height: 1; }
-.day-dot.green .day-num { color: var(--green-text); }
-.day-dot.red .day-num { color: var(--red-text); }
-.day-dot.grey .day-num { color: var(--ink2); }
-.day-dot.dark .day-num { color: #fff; }
+.day-dot.green .day-num { color: var(--green-text); } .day-dot.red .day-num { color: var(--red-text); } .day-dot.grey .day-num { color: var(--ink2); } .day-dot.dark .day-num { color: #fff; }
 .day-mon { font-size: 10px; font-weight: 600; text-transform: uppercase; line-height: 1; margin-top: 2px; letter-spacing: 0.04em; }
-.day-dot.green .day-mon { color: var(--green-text); }
-.day-dot.red .day-mon { color: var(--red-text); }
-.day-dot.grey .day-mon { color: var(--ink3); }
-.day-dot.dark .day-mon { color: rgba(255,255,255,0.7); }
+.day-dot.green .day-mon { color: var(--green-text); } .day-dot.red .day-mon { color: var(--red-text); } .day-dot.grey .day-mon { color: var(--ink3); } .day-dot.dark .day-mon { color: rgba(255,255,255,0.7); }
 .sd-body { flex: 1; min-width: 0; }
 .sd-title { font-size: 14px; font-weight: 500; color: var(--ink); line-height: 1.4; margin-bottom: 5px; }
 .sd-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 4px; }
 .sd-diff { font-size: 12px; color: var(--ink2); }
 .sd-what { font-size: 12px; color: var(--ink2); display: flex; gap: 5px; align-items: flex-start; margin-top: 5px; }
 
-/* Sources */
 .source-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
 .source-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; box-shadow: var(--shadow); }
 .source-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .source-icon { width: 36px; height: 36px; border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-.source-icon.gmail { background: var(--red-light); }
-.source-icon.wa { background: var(--green-light); }
+.source-icon.gmail { background: var(--red-light); } .source-icon.wa { background: var(--green-light); }
 .source-name { font-size: 13px; font-weight: 600; color: var(--ink); }
 .source-sub { font-size: 11px; color: var(--ink2); margin-top: 1px; }
 
-/* Buttons */
-.btn-primary {
-  width: 100%; font-size: 13px; font-weight: 600; font-family: inherit;
-  padding: 10px 14px; border-radius: var(--r-sm); border: none;
-  background: var(--accent); color: #fff; cursor: pointer;
-  transition: opacity 0.15s;
-}
-.btn-primary:active { opacity: 0.85; }
-.btn-primary:disabled { opacity: 0.4; }
-.btn-secondary {
-  width: 100%; font-size: 12px; font-weight: 500; font-family: inherit;
-  padding: 8px 14px; border-radius: var(--r-sm);
-  border: 1px solid var(--border); background: var(--surface);
-  color: var(--ink2); cursor: pointer; margin-top: 6px;
-}
+.btn-primary { width: 100%; font-size: 13px; font-weight: 600; font-family: inherit; padding: 10px 14px; border-radius: var(--r-sm); border: none; background: var(--accent); color: #fff; cursor: pointer; transition: opacity 0.15s; }
+.btn-primary:active { opacity: 0.85; } .btn-primary:disabled { opacity: 0.4; }
+.btn-secondary { width: 100%; font-size: 12px; font-weight: 500; font-family: inherit; padding: 8px 14px; border-radius: var(--r-sm); border: 1px solid var(--border); background: var(--surface); color: var(--ink2); cursor: pointer; margin-top: 6px; }
 .status-text { font-size: 11px; color: var(--ink2); text-align: center; margin-top: 7px; min-height: 16px; }
 
-.upload-label {
-  display: block; border: 1.5px dashed var(--border2);
-  border-radius: var(--r-sm); padding: 12px;
-  text-align: center; font-size: 12px; color: var(--ink2);
-  cursor: pointer; margin-top: 8px;
-  transition: background 0.15s;
-}
+.upload-label { display: block; border: 1.5px dashed var(--border2); border-radius: var(--r-sm); padding: 12px; text-align: center; font-size: 12px; color: var(--ink2); cursor: pointer; margin-top: 8px; transition: background 0.15s; }
 .upload-label:active { background: var(--surface3); }
 
 .notice { font-size: 12px; color: var(--ink2); background: var(--surface3); border-radius: var(--r-sm); padding: 10px 12px; margin-bottom: 14px; line-height: 1.6; }
 .field-label { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 6px; margin-top: 16px; }
 
-input[type=text], input[type=email], input[type=date], textarea, select {
-  width: 100%; font-size: 14px; padding: 10px 12px;
-  border: 1px solid var(--border2); border-radius: var(--r-sm);
-  background: var(--surface); color: var(--ink); font-family: inherit;
-  outline: none; appearance: none; -webkit-appearance: none;
-  transition: border-color 0.15s;
-}
+input[type=text], input[type=email], input[type=date], textarea, select { width: 100%; font-size: 14px; padding: 10px 12px; border: 1px solid var(--border2); border-radius: var(--r-sm); background: var(--surface); color: var(--ink); font-family: inherit; outline: none; appearance: none; -webkit-appearance: none; transition: border-color 0.15s; }
 input:focus, textarea:focus, select:focus { border-color: var(--accent); }
 textarea { resize: vertical; min-height: 80px; }
 .form-row { display: flex; gap: 8px; margin-bottom: 8px; }
@@ -263,6 +161,36 @@ textarea { resize: vertical; min-height: 80px; }
 
 .empty { text-align: center; padding: 3rem 1rem; font-size: 14px; color: var(--ink3); line-height: 1.7; }
 .empty strong { display: block; font-size: 16px; color: var(--ink2); margin-bottom: 6px; }
+
+/* ── News tab ── */
+.news-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; }
+.news-header-left { min-width: 0; }
+.news-header-title { font-size: 15px; font-weight: 600; color: var(--ink); }
+.news-from { font-size: 11px; color: var(--ink3); margin-top: 3px; }
+
+.news-refresh-btn { font-size: 13px; font-weight: 600; font-family: inherit; padding: 8px 16px; border-radius: var(--r-sm); border: none; background: var(--accent); color: #fff; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: opacity 0.15s; white-space: nowrap; flex-shrink: 0; }
+.news-refresh-btn:disabled { opacity: 0.4; }
+.news-refresh-btn .btn-spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+.news-refresh-btn.loading .btn-spinner { display: inline-block; }
+.news-refresh-btn.loading .btn-label { display: none; }
+
+.yr-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
+.yr-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.yr-pill { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: var(--r-full); }
+.yr-pill.yr2 { background: var(--blue-light); color: var(--blue-text); }
+.yr-pill.yr6 { background: var(--purple-light); color: var(--purple-text); }
+.yr-card-subtitle { font-size: 12px; color: var(--ink3); }
+
+.news-bullet { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.news-bullet:last-child { border-bottom: none; padding-bottom: 0; }
+.news-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.yr2-card .news-dot { background: var(--blue); }
+.yr6-card .news-dot { background: var(--purple); }
+.news-bullet-text { font-size: 13px; color: var(--ink); line-height: 1.55; }
+
+.news-empty { text-align: center; padding: 3rem 1rem; font-size: 14px; color: var(--ink3); line-height: 1.8; }
+.news-empty strong { display: block; font-size: 16px; color: var(--ink2); margin-bottom: 8px; }
+.news-hint { font-size: 12px; color: var(--ink3); margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -282,6 +210,7 @@ textarea { resize: vertical; min-height: 80px; }
   <div class="nav">
     <button class="nav-btn active" onclick="showTab('tasks')">Tasks</button>
     <button class="nav-btn" onclick="showTab('days')">Dates <span class="nav-badge" id="days-badge" style="display:none"></span></button>
+    <button class="nav-btn" onclick="showTab('news')">News</button>
     <button class="nav-btn" onclick="showTab('sources')">Sources</button>
     <button class="nav-btn" onclick="showTab('add')">Add</button>
   </div>
@@ -316,6 +245,27 @@ textarea { resize: vertical; min-height: 80px; }
         <span id="past-arrow">▶</span> <span style="color:var(--ink3)">Past events (<span id="past-count">0</span>)</span>
       </button>
       <div id="past-list" style="display:none; margin-top:8px;"></div>
+    </div>
+
+    <!-- NEWS -->
+    <div class="tab-pane" id="pane-news">
+      <div class="news-header">
+        <div class="news-header-left">
+          <div class="news-header-title">What's been happening</div>
+          <div class="news-from" id="news-from">Latest Sway newsletter, summarised by year group</div>
+        </div>
+        <button class="news-refresh-btn" id="news-btn" onclick="loadNews()">
+          <span class="btn-spinner"></span>
+          <span class="btn-label">↻ Load newsletter</span>
+        </button>
+      </div>
+      <div id="news-content">
+        <div class="news-empty">
+          <strong>No newsletter loaded yet</strong>
+          Tap "Load newsletter" to fetch the latest<br>Sway newsletter from your Gmail.
+          <div class="news-hint">Make sure you're signed in to Gmail first (Sources tab).</div>
+        </div>
+      </div>
     </div>
 
     <!-- SOURCES -->
@@ -369,18 +319,14 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="section-label">Add a task</div>
       <div class="form-card">
         <input type="text" id="t-title" placeholder="What needs doing?" style="margin-bottom:8px;" />
-        <div class="form-row">
-          <input type="date" id="t-date" />
-        </div>
+        <div class="form-row"><input type="date" id="t-date" /></div>
         <textarea id="t-notes" placeholder="Notes (optional)" style="min-height:60px; margin-top:8px; margin-bottom:8px;"></textarea>
         <button class="btn-primary" onclick="addTask()">Add task</button>
       </div>
       <div class="section-label">Add a school date</div>
       <div class="form-card">
         <input type="text" id="sd-title" placeholder="e.g. World Book Day, Sports day, School play" style="margin-bottom:8px;" />
-        <div class="form-row">
-          <input type="date" id="sd-date" />
-        </div>
+        <div class="form-row"><input type="date" id="sd-date" /></div>
         <input type="text" id="sd-what" placeholder="What's needed? e.g. costume, £2, PE kit" style="margin-top:8px; margin-bottom:8px;" />
         <select id="sd-year" style="margin-bottom:8px;">
           <option value="both">Both children</option>
@@ -395,7 +341,6 @@ textarea { resize: vertical; min-height: 80px; }
 </div>
 
 <script>
-// Set today's date in header
 document.getElementById('header-date').textContent = new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
 
 const BOVINGDON_TERM_DATES = [
@@ -427,244 +372,215 @@ function saveTasks() { localStorage.setItem('si_tasks', JSON.stringify(tasks)); 
 function saveDays() { localStorage.setItem('si_days', JSON.stringify(days)); }
 
 function showTab(tab) {
-  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', ['tasks','days','sources','add'][i]===tab));
+  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', ['tasks','days','news','sources','add'][i]===tab));
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
   document.getElementById('pane-'+tab).classList.add('active');
 }
 
-function setFilter(f, el) {
-  taskFilter = f;
-  document.querySelectorAll('#pane-tasks .chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active'); renderTasks();
-}
-
-function setDayFilter(f, el) {
-  dayFilter = f;
-  document.querySelectorAll('#pane-days .chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active'); renderDays();
-}
+function setFilter(f, el) { taskFilter=f; document.querySelectorAll('#pane-tasks .chip').forEach(c=>c.classList.remove('active')); el.classList.add('active'); renderTasks(); }
+function setDayFilter(f, el) { dayFilter=f; document.querySelectorAll('#pane-days .chip').forEach(c=>c.classList.remove('active')); el.classList.add('active'); renderDays(); }
 
 function daysUntil(ds) {
   if (!ds) return null;
-  const d = new Date(ds); d.setHours(0,0,0,0);
-  const t = new Date(); t.setHours(0,0,0,0);
-  return Math.round((d - t) / 86400000);
+  const d=new Date(ds); d.setHours(0,0,0,0);
+  const t=new Date(); t.setHours(0,0,0,0);
+  return Math.round((d-t)/86400000);
 }
 
 function dlLabel(deadline) {
-  const d = daysUntil(deadline);
-  if (d === null) return { text: 'No deadline', cls: 'none' };
-  if (d < 0) return { text: 'Overdue', cls: 'overdue' };
-  if (d === 0) return { text: 'Today', cls: 'soon' };
-  if (d === 1) return { text: 'Tomorrow', cls: 'soon' };
-  if (d <= 3) return { text: `In ${d} days`, cls: 'soon' };
-  return { text: new Date(deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short'}), cls: 'ok' };
+  const d=daysUntil(deadline);
+  if (d===null) return {text:'No deadline',cls:'none'};
+  if (d<0) return {text:'Overdue',cls:'overdue'};
+  if (d===0) return {text:'Today',cls:'soon'};
+  if (d===1) return {text:'Tomorrow',cls:'soon'};
+  if (d<=3) return {text:`In ${d} days`,cls:'soon'};
+  return {text:new Date(deadline).toLocaleDateString('en-GB',{day:'numeric',month:'short'}),cls:'ok'};
 }
 
 function renderTasks() {
-  const pending = tasks.filter(t => {
+  const pending=tasks.filter(t=>{
     if (t.done) return false;
-    if (taskFilter === 'gmail') return t.source === 'gmail';
-    if (taskFilter === 'whatsapp') return t.source === 'whatsapp';
-    if (taskFilter === 'urgent') { const d=daysUntil(t.deadline); return d!==null&&d>=0&&d<=3; }
+    if (taskFilter==='gmail') return t.source==='gmail';
+    if (taskFilter==='whatsapp') return t.source==='whatsapp';
+    if (taskFilter==='urgent') { const d=daysUntil(t.deadline); return d!==null&&d>=0&&d<=3; }
     return true;
   });
-  const done = tasks.filter(t => t.done);
-  document.getElementById('done-count').textContent = done.length;
-  document.getElementById('task-list').innerHTML = pending.length === 0
-    ? '<div class="empty"><strong>All clear</strong>Scan Gmail or paste a message<br>to pull in tasks.</div>'
-    : pending.map(t => taskHTML(t, false)).join('');
-  document.getElementById('done-list').innerHTML = done.map(t => taskHTML(t, true)).join('');
+  const done=tasks.filter(t=>t.done);
+  document.getElementById('done-count').textContent=done.length;
+  document.getElementById('task-list').innerHTML=pending.length===0
+    ?'<div class="empty"><strong>All clear</strong>Scan Gmail or paste a message<br>to pull in tasks.</div>'
+    :pending.map(t=>taskHTML(t,false)).join('');
+  document.getElementById('done-list').innerHTML=done.map(t=>taskHTML(t,true)).join('');
 }
 
-function taskHTML(t, isDone) {
-  const dl = dlLabel(t.deadline);
-  const isEd = editingDL === t.id;
-  const dlPart = isEd
-    ? `<div class="dl-editor"><input type="date" id="dle-${t.id}" value="${t.deadline||''}" /><button onclick="saveDL('${t.id}')">Save</button><button onclick="clearDL('${t.id}')">Remove</button><button onclick="cancelDL()">Cancel</button></div>`
-    : `<span class="dl ${dl.cls}" onclick="startDL('${t.id}')">${dl.text}</span>`;
-  const srcTag = `<span class="tag ${t.source}">${t.source==='gmail'?'Email':t.source==='whatsapp'?'WhatsApp':'Manual'}</span>`;
-  const noteHTML = t.notes ? `<div class="task-note">${t.notes}</div>` : '';
-  const actions = isDone
-    ? `<button class="act-btn" onclick="toggleTask('${t.id}')">Undo</button><button class="act-btn" onclick="deleteTask('${t.id}')">✕</button>`
-    : `<button class="act-btn" onclick="deleteTask('${t.id}')">✕</button>`;
-  return `<div class="task-card ${isDone?'done':''}">
-    <div class="task-row">
-      <div class="cb ${isDone?'checked':''}" onclick="toggleTask('${t.id}')"></div>
-      <div class="task-body">
-        <div class="task-title">${t.title}</div>
-        <div class="task-meta">${dlPart}${srcTag}</div>
-        ${noteHTML}
-      </div>
-      <div class="task-actions">${actions}</div>
-    </div>
-  </div>`;
+function taskHTML(t,isDone) {
+  const dl=dlLabel(t.deadline);
+  const isEd=editingDL===t.id;
+  const dlPart=isEd
+    ?`<div class="dl-editor"><input type="date" id="dle-${t.id}" value="${t.deadline||''}" /><button onclick="saveDL('${t.id}')">Save</button><button onclick="clearDL('${t.id}')">Remove</button><button onclick="cancelDL()">Cancel</button></div>`
+    :`<span class="dl ${dl.cls}" onclick="startDL('${t.id}')">${dl.text}</span>`;
+  const srcTag=`<span class="tag ${t.source}">${t.source==='gmail'?'Email':t.source==='whatsapp'?'WhatsApp':'Manual'}</span>`;
+  const noteHTML=t.notes?`<div class="task-note">${t.notes}</div>`:'';
+  const actions=isDone
+    ?`<button class="act-btn" onclick="toggleTask('${t.id}')">Undo</button><button class="act-btn" onclick="deleteTask('${t.id}')">✕</button>`
+    :`<button class="act-btn" onclick="deleteTask('${t.id}')">✕</button>`;
+  return `<div class="task-card ${isDone?'done':''}"><div class="task-row"><div class="cb ${isDone?'checked':''}" onclick="toggleTask('${t.id}')"></div><div class="task-body"><div class="task-title">${t.title}</div><div class="task-meta">${dlPart}${srcTag}</div>${noteHTML}</div><div class="task-actions">${actions}</div></div></div>`;
 }
 
 function renderDays() {
-  const filterFn = d => {
-    const diff = daysUntil(d.date);
-    if (diff === null || diff < 0) return false;
-    if (dayFilter === 'termdate') return d.source === 'termdate';
-    if (dayFilter === 'yr2') return d.source !== 'termdate' && (d.yearGroup==='yr2'||d.yearGroup==='both');
-    if (dayFilter === 'yr6') return d.source !== 'termdate' && (d.yearGroup==='yr6'||d.yearGroup==='both');
+  const filterFn=d=>{
+    const diff=daysUntil(d.date);
+    if (diff===null||diff<0) return false;
+    if (dayFilter==='termdate') return d.source==='termdate';
+    if (dayFilter==='yr2') return d.source!=='termdate'&&(d.yearGroup==='yr2'||d.yearGroup==='both');
+    if (dayFilter==='yr6') return d.source!=='termdate'&&(d.yearGroup==='yr6'||d.yearGroup==='both');
     return true;
   };
-  const upcoming = days.filter(filterFn).sort((a,b) => new Date(a.date)-new Date(b.date));
-  const past = days.filter(d => { const diff=daysUntil(d.date); return diff!==null&&diff<0; }).sort((a,b)=>new Date(b.date)-new Date(a.date));
-  document.getElementById('past-count').textContent = past.length;
-  const events = upcoming.filter(d => d.source !== 'termdate');
-  const terms = upcoming.filter(d => d.source === 'termdate');
-  let html = '';
-  if (events.length > 0) html += '<div class="section-div">School events</div>' + events.map(d => dayHTML(d, false)).join('');
-  if (terms.length > 0) html += '<div class="section-div">Term dates — Bovingdon</div>' + terms.map(d => dayHTML(d, false)).join('');
-  if (!html) html = '<div class="empty"><strong>No upcoming events</strong>Scan Gmail to pull in events<br>from your newsletters.</div>';
-  document.getElementById('days-list').innerHTML = html;
-  document.getElementById('past-list').innerHTML = past.length===0 ? '' : past.map(d=>dayHTML(d,true)).join('');
-  const urgentCount = days.filter(d => { const diff=daysUntil(d.date); return d.source!=='termdate'&&diff!==null&&diff>=0&&diff<=7; }).length;
-  const badge = document.getElementById('days-badge');
-  badge.textContent = urgentCount;
-  badge.style.display = urgentCount > 0 ? 'inline' : 'none';
+  const upcoming=days.filter(filterFn).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const past=days.filter(d=>{const diff=daysUntil(d.date);return diff!==null&&diff<0;}).sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('past-count').textContent=past.length;
+  const events=upcoming.filter(d=>d.source!=='termdate');
+  const terms=upcoming.filter(d=>d.source==='termdate');
+  let html='';
+  if (events.length>0) html+='<div class="section-div">School events</div>'+events.map(d=>dayHTML(d,false)).join('');
+  if (terms.length>0) html+='<div class="section-div">Term dates — Bovingdon</div>'+terms.map(d=>dayHTML(d,false)).join('');
+  if (!html) html='<div class="empty"><strong>No upcoming events</strong>Scan Gmail to pull in events<br>from your newsletters.</div>';
+  document.getElementById('days-list').innerHTML=html;
+  document.getElementById('past-list').innerHTML=past.length===0?'':past.map(d=>dayHTML(d,true)).join('');
+  const urgentCount=days.filter(d=>{const diff=daysUntil(d.date);return d.source!=='termdate'&&diff!==null&&diff>=0&&diff<=7;}).length;
+  const badge=document.getElementById('days-badge');
+  badge.textContent=urgentCount; badge.style.display=urgentCount>0?'inline':'none';
 }
 
-function dayHTML(d, isPast) {
-  const diff = daysUntil(d.date);
-  const date = new Date(d.date);
-  const dayNum = date.toLocaleDateString('en-GB',{day:'numeric'});
-  const mon = date.toLocaleDateString('en-GB',{month:'short'});
-  const isToday = diff===0, isUrgent = diff!==null&&diff>=0&&diff<=7;
-  const isTerm = d.source==='termdate';
-  const dotCls = isToday?'dark':isUrgent?'red':isTerm?'grey':'green';
-  const diffLabel = isToday?'Today':diff===1?'Tomorrow':diff!==null&&diff>0?`In ${diff} days`:isPast?date.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
-  const yrTag = !isTerm&&d.yearGroup ? `<span class="tag ${d.yearGroup}">${d.yearGroup==='yr2'?'Year 2':d.yearGroup==='yr6'?'Year 6':'Both'}</span>` : '';
-  const termTag = isTerm ? `<span class="tag termdate">Term date</span>` : '';
-  const sentTag = d.reminderSent ? `<span class="tag sent">Reminder sent</span>` : '';
-  const whatHTML = d.what ? `<div class="sd-what"><span class="tag ${isTerm?'info':'needed'}">${isTerm?'Info':'Needed'}</span><span style="font-size:12px;">${d.what}</span></div>` : '';
-  return `<div class="sd-card ${isPast?'past':''}">
-    <div class="day-dot ${dotCls}"><span class="day-num">${dayNum}</span><span class="day-mon">${mon}</span></div>
-    <div class="sd-body">
-      <div class="sd-title">${d.title}</div>
-      <div class="sd-meta"><span class="sd-diff">${diffLabel}</span>${yrTag}${termTag}${sentTag}</div>
-      ${whatHTML}
-    </div>
-    <div class="task-actions"><button class="act-btn" onclick="deleteDay('${d.id}')">✕</button></div>
-  </div>`;
+function dayHTML(d,isPast) {
+  const diff=daysUntil(d.date);
+  const date=new Date(d.date);
+  const dayNum=date.toLocaleDateString('en-GB',{day:'numeric'});
+  const mon=date.toLocaleDateString('en-GB',{month:'short'});
+  const isToday=diff===0,isUrgent=diff!==null&&diff>=0&&diff<=7,isTerm=d.source==='termdate';
+  const dotCls=isToday?'dark':isUrgent?'red':isTerm?'grey':'green';
+  const diffLabel=isToday?'Today':diff===1?'Tomorrow':diff!==null&&diff>0?`In ${diff} days`:isPast?date.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
+  const yrTag=!isTerm&&d.yearGroup?`<span class="tag ${d.yearGroup}">${d.yearGroup==='yr2'?'Year 2':d.yearGroup==='yr6'?'Year 6':'Both'}</span>`:'';
+  const termTag=isTerm?`<span class="tag termdate">Term date</span>`:'';
+  const sentTag=d.reminderSent?`<span class="tag sent">Reminder sent</span>`:'';
+  const whatHTML=d.what?`<div class="sd-what"><span class="tag ${isTerm?'info':'needed'}">${isTerm?'Info':'Needed'}</span><span style="font-size:12px;">${d.what}</span></div>`:'';
+  return `<div class="sd-card ${isPast?'past':''}"><div class="day-dot ${dotCls}"><span class="day-num">${dayNum}</span><span class="day-mon">${mon}</span></div><div class="sd-body"><div class="sd-title">${d.title}</div><div class="sd-meta"><span class="sd-diff">${diffLabel}</span>${yrTag}${termTag}${sentTag}</div>${whatHTML}</div><div class="task-actions"><button class="act-btn" onclick="deleteDay('${d.id}')">✕</button></div></div>`;
 }
 
 function renderAlerts() {
-  const alerts = days.filter(d => d.source !== 'termdate').map(d => {
-    const diff = daysUntil(d.date);
-    const yr = d.yearGroup==='yr2'?'Year 2':d.yearGroup==='yr6'?'Year 6':'';
-    if (diff === 0) return `<div class="alert today"><div class="alert-title">Today: ${d.title}${yr?' · '+yr:''}</div>${d.what?'<div class="alert-what">'+d.what+'</div>':''}</div>`;
-    if (diff !== null && diff > 0 && diff <= 7) return `<div class="alert prep"><div class="alert-title">In ${diff} day${diff!==1?'s':''}: ${d.title}${yr?' · '+yr:''}</div>${d.what?'<div class="alert-sub">'+d.what+'</div>':''}</div>`;
+  const alerts=days.filter(d=>d.source!=='termdate').map(d=>{
+    const diff=daysUntil(d.date);
+    const yr=d.yearGroup==='yr2'?'Year 2':d.yearGroup==='yr6'?'Year 6':'';
+    if (diff===0) return `<div class="alert today"><div class="alert-title">Today: ${d.title}${yr?' · '+yr:''}</div>${d.what?'<div class="alert-what">'+d.what+'</div>':''}</div>`;
+    if (diff!==null&&diff>0&&diff<=7) return `<div class="alert prep"><div class="alert-title">In ${diff} day${diff!==1?'s':''}: ${d.title}${yr?' · '+yr:''}</div>${d.what?'<div class="alert-sub">'+d.what+'</div>':''}</div>`;
     return '';
   }).filter(Boolean).join('');
-  document.getElementById('alert-area').innerHTML = alerts;
+  document.getElementById('alert-area').innerHTML=alerts;
 }
 
-function startDL(id) { editingDL=id; renderTasks(); setTimeout(()=>{ const el=document.getElementById('dle-'+id); if(el)el.focus(); },50); }
-function cancelDL() { editingDL=null; renderTasks(); }
-function saveDL(id) { const v=document.getElementById('dle-'+id)?.value; const t=tasks.find(t=>t.id===id); if(t){t.deadline=v||null;saveTasks();} editingDL=null; renderTasks(); }
-function clearDL(id) { const t=tasks.find(t=>t.id===id); if(t){t.deadline=null;saveTasks();} editingDL=null; renderTasks(); }
-function toggleTask(id) { const t=tasks.find(t=>t.id===id); if(t){t.done=!t.done;saveTasks();renderTasks();} }
-function deleteTask(id) { tasks=tasks.filter(t=>t.id!==id); saveTasks(); renderTasks(); }
-function deleteDay(id) { days=days.filter(d=>d.id!==id); saveDays(); renderAll(); }
-function toggleDone() { showDone=!showDone; document.getElementById('done-list').style.display=showDone?'block':'none'; document.getElementById('done-arrow').textContent=showDone?'▼':'▶'; }
-function togglePast() { showPast=!showPast; document.getElementById('past-list').style.display=showPast?'block':'none'; document.getElementById('past-arrow').textContent=showPast?'▼':'▶'; }
+function startDL(id){editingDL=id;renderTasks();setTimeout(()=>{const el=document.getElementById('dle-'+id);if(el)el.focus();},50);}
+function cancelDL(){editingDL=null;renderTasks();}
+function saveDL(id){const v=document.getElementById('dle-'+id)?.value;const t=tasks.find(t=>t.id===id);if(t){t.deadline=v||null;saveTasks();}editingDL=null;renderTasks();}
+function clearDL(id){const t=tasks.find(t=>t.id===id);if(t){t.deadline=null;saveTasks();}editingDL=null;renderTasks();}
+function toggleTask(id){const t=tasks.find(t=>t.id===id);if(t){t.done=!t.done;saveTasks();renderTasks();}}
+function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);saveTasks();renderTasks();}
+function deleteDay(id){days=days.filter(d=>d.id!==id);saveDays();renderAll();}
+function toggleDone(){showDone=!showDone;document.getElementById('done-list').style.display=showDone?'block':'none';document.getElementById('done-arrow').textContent=showDone?'▼':'▶';}
+function togglePast(){showPast=!showPast;document.getElementById('past-list').style.display=showPast?'block':'none';document.getElementById('past-arrow').textContent=showPast?'▼':'▶';}
 
-function saveEmail() {
-  reminderEmail = document.getElementById('reminder-email').value.trim();
-  localStorage.setItem('si_email', reminderEmail);
-  document.getElementById('email-saved').textContent = reminderEmail ? 'Reminders going to ' + reminderEmail : '';
+function saveEmail(){
+  reminderEmail=document.getElementById('reminder-email').value.trim();
+  localStorage.setItem('si_email',reminderEmail);
+  document.getElementById('email-saved').textContent=reminderEmail?'Reminders going to '+reminderEmail:'';
 }
 
-function addTask() {
-  const title = document.getElementById('t-title').value.trim(); if(!title) return;
-  tasks.unshift({ id:uid(), title, deadline:document.getElementById('t-date').value||null, notes:document.getElementById('t-notes').value.trim()||null, source:'manual', done:false, addedAt:now() });
-  saveTasks(); renderTasks(); showTab('tasks');
-  ['t-title','t-notes'].forEach(id => document.getElementById(id).value='');
+function addTask(){
+  const title=document.getElementById('t-title').value.trim();if(!title)return;
+  tasks.unshift({id:uid(),title,deadline:document.getElementById('t-date').value||null,notes:document.getElementById('t-notes').value.trim()||null,source:'manual',done:false,addedAt:now()});
+  saveTasks();renderTasks();showTab('tasks');
+  ['t-title','t-notes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('t-date').value='';
 }
 
-function addDay() {
-  const title=document.getElementById('sd-title').value.trim(); const date=document.getElementById('sd-date').value;
-  if(!title||!date) return;
-  const d={ id:uid(), title, date, what:document.getElementById('sd-what').value.trim()||null, yearGroup:document.getElementById('sd-year').value||'both', source:'manual', reminderSent:false, addedAt:now() };
-  days.push(d); saveDays(); renderAll(); checkReminders([d]); showTab('days');
+function addDay(){
+  const title=document.getElementById('sd-title').value.trim();const date=document.getElementById('sd-date').value;
+  if(!title||!date)return;
+  const d={id:uid(),title,date,what:document.getElementById('sd-what').value.trim()||null,yearGroup:document.getElementById('sd-year').value||'both',source:'manual',reminderSent:false,addedAt:now()};
+  days.push(d);saveDays();renderAll();checkReminders([d]);showTab('days');
   ['sd-title','sd-what'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('sd-date').value='';
 }
 
-const CLIENT_ID = '133784275625-fug6gj7d5s2kivpr4v5mca5sf36r1iet.apps.googleusercontent.com';
-const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
-let accessToken = localStorage.getItem('si_access_token') || null;
-let tokenExpiry = parseInt(localStorage.getItem('si_token_expiry') || '0');
+const CLIENT_ID='133784275625-fug6gj7d5s2kivpr4v5mca5sf36r1iet.apps.googleusercontent.com';
+const SCOPES='https://www.googleapis.com/auth/gmail.readonly';
+let accessToken=localStorage.getItem('si_access_token')||null;
+let tokenExpiry=parseInt(localStorage.getItem('si_token_expiry')||'0');
 
-function isTokenValid() { return accessToken && Date.now() < tokenExpiry - 60000; }
+function isTokenValid(){return accessToken&&Date.now()<tokenExpiry-60000;}
 
-function updateGmailUI() {
-  const ok = isTokenValid();
-  document.getElementById('gmail-signed-out').style.display = ok ? 'none' : 'block';
-  document.getElementById('gmail-signed-in').style.display = ok ? 'block' : 'none';
+function updateGmailUI(){
+  const ok=isTokenValid();
+  document.getElementById('gmail-signed-out').style.display=ok?'none':'block';
+  document.getElementById('gmail-signed-in').style.display=ok?'block':'none';
 }
 
-function signInWithGoogle() {
-  const client = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID, scope: SCOPES,
-    callback: (resp) => {
-      if (resp.error) { console.error(resp); return; }
-      accessToken = resp.access_token;
-      tokenExpiry = Date.now() + (resp.expires_in * 1000);
-      localStorage.setItem('si_access_token', accessToken);
-      localStorage.setItem('si_token_expiry', tokenExpiry.toString());
+function signInWithGoogle(){
+  const client=google.accounts.oauth2.initTokenClient({
+    client_id:CLIENT_ID,scope:SCOPES,
+    callback:(resp)=>{
+      if(resp.error){console.error(resp);return;}
+      accessToken=resp.access_token;
+      tokenExpiry=Date.now()+(resp.expires_in*1000);
+      localStorage.setItem('si_access_token',accessToken);
+      localStorage.setItem('si_token_expiry',tokenExpiry.toString());
       updateGmailUI();
-      document.getElementById('gmail-status').textContent = 'Connected — ready to scan';
+      document.getElementById('gmail-status').textContent='Connected — ready to scan';
     },
   });
   client.requestAccessToken();
 }
 
-function signOut() {
-  if (accessToken) google.accounts.oauth2.revoke(accessToken, ()=>{});
-  accessToken = null; tokenExpiry = 0;
-  localStorage.removeItem('si_access_token'); localStorage.removeItem('si_token_expiry');
+function signOut(){
+  if(accessToken)google.accounts.oauth2.revoke(accessToken,()=>{});
+  accessToken=null;tokenExpiry=0;
+  localStorage.removeItem('si_access_token');localStorage.removeItem('si_token_expiry');
   updateGmailUI();
-  document.getElementById('gmail-status').textContent = '';
+  document.getElementById('gmail-status').textContent='';
 }
 
-async function getValidToken() {
-  if (isTokenValid()) return accessToken;
+async function getValidToken(){
+  if(isTokenValid())return accessToken;
   throw new Error('Not signed in');
 }
 
-async function callAPI(messages, system) {
-  const res = await fetch('/.netlify/functions/claude', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'claude', messages, system, max_tokens: 1500 })
+async function callAPI(messages,system){
+  const res=await fetch('/.netlify/functions/claude',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'claude',messages,system,max_tokens:1500})
   });
-  if (!res.ok) throw new Error('API error');
+  if(!res.ok)throw new Error('API error');
   return res.json();
 }
 
-async function checkReminders(daysToCheck) {
-  if (!reminderEmail) return;
-  for (const d of daysToCheck) {
-    if (d.reminderSent || d.source==='termdate') continue;
-    const diff = daysUntil(d.date);
-    if (diff!==0 && diff!==7) continue;
-    const yr = d.yearGroup==='yr2'?'Year 2':d.yearGroup==='yr6'?'Year 6':'both children';
-    const subject = diff===0 ? `Today at Bovingdon: ${d.title} (${yr})` : `Reminder: ${d.title} (${yr}) — ${new Date(d.date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}`;
-    const body = `${diff===0?'Today is':'In one week:'} ${d.title} for ${yr}.\n\nDate: ${new Date(d.date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}${d.what?'\n\nDon\'t forget: '+d.what:''}`;
-    try {
-      await callAPI([{role:'user',content:`Send a reminder email to ${reminderEmail}. Subject: "${subject}". Body: ${body}`}], 'Send a reminder email as requested. Confirm with "sent".');
-      const idx = days.findIndex(s=>s.id===d.id);
+async function checkReminders(daysToCheck){
+  if(!reminderEmail)return;
+  for(const d of daysToCheck){
+    if(d.reminderSent||d.source==='termdate')continue;
+    const diff=daysUntil(d.date);
+    if(diff!==0&&diff!==7)continue;
+    const yr=d.yearGroup==='yr2'?'Year 2':d.yearGroup==='yr6'?'Year 6':'both children';
+    const subject=diff===0?`Today at Bovingdon: ${d.title} (${yr})`:`Reminder: ${d.title} (${yr}) — ${new Date(d.date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}`;
+    const body=`${diff===0?'Today is':'In one week:'} ${d.title} for ${yr}.\n\nDate: ${new Date(d.date).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}${d.what?'\n\nDon\'t forget: '+d.what:''}`;
+    try{
+      await callAPI([{role:'user',content:`Send a reminder email to ${reminderEmail}. Subject: "${subject}". Body: ${body}`}],'Send a reminder email as requested. Confirm with "sent".');
+      const idx=days.findIndex(s=>s.id===d.id);
       if(idx>=0){days[idx].reminderSent=true;saveDays();}
-    } catch(e){}
+    }catch(e){}
   }
   renderDays();
 }
 
-const SYSTEM = `You are helping a parent whose children attend Bovingdon Primary Academy in Hertfordshire, UK. One child is in Year 2, the other in Year 6.
+const SYSTEM=`You are helping a parent whose children attend Bovingdon Primary Academy in Hertfordshire, UK. One child is in Year 2, the other in Year 6.
 Extract TWO types of items only:
 1. TASKS: things the parent needs to do or return by a deadline — permission slips, payments, forms, replies.
 2. SPECIAL DAYS: specific dates where a child needs to wear something, bring something, or attend something. Non-uniform/dress-up days, performances, concerts, plays, sports days, trips, residentials, fundraising days, Year 6 leavers events, transition days.
@@ -673,115 +589,222 @@ Return ONLY this JSON, no markdown:
 {"tasks":[{"title":"concise action","deadline":"YYYY-MM-DD or null","notes":"brief context or null"}],"days":[{"title":"event name","date":"YYYY-MM-DD","what":"what to bring/wear or null","yearGroup":"yr2 or yr6 or both"}]}
 Today is DATE_TODAY. Only extract future dates or overdue tasks.`;
 
-function parseOut(data) {
-  const text = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
-  const match = text.replace(/```json|```/g,'').trim().match(/\{[\s\S]*\}/);
-  if (!match) return {tasks:[],days:[]};
-  try { return JSON.parse(match[0]); } catch(e) { return {tasks:[],days:[]}; }
+// System prompt for the News tab
+const NEWS_SYSTEM=`You are summarising a Bovingdon Primary Academy newsletter for a parent with one child in Year 2 and one in Year 6.
+Read the newsletter and produce TWO short summaries describing what the children have been doing recently: lessons, topics, projects, trips, events, achievements, creative work — anything interesting about their school life.
+Focus on things the children have DONE or are currently learning, not upcoming events or admin tasks.
+If the newsletter doesn't explicitly separate year groups, use context to assign content to the most likely year group.
+Return ONLY this JSON, no markdown:
+{"yr2":["bullet 1","bullet 2","bullet 3"],"yr6":["bullet 1","bullet 2","bullet 3"],"newsletterDate":"date found in newsletter or null"}
+Each array should have 3–6 bullets. Write warmly and conversationally, as if telling a parent what their child has been up to this week.`;
+
+function parseOut(data){
+  const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+  const match=text.replace(/```json|```/g,'').trim().match(/\{[\s\S]*\}/);
+  if(!match)return{tasks:[],days:[]};
+  try{return JSON.parse(match[0]);}catch(e){return{tasks:[],days:[]};}
+}
+
+function parseNewsOut(data){
+  const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+  const match=text.replace(/```json|```/g,'').trim().match(/\{[\s\S]*\}/);
+  if(!match)return null;
+  try{return JSON.parse(match[0]);}catch(e){return null;}
 }
 
 function makeTask(t,src){return{id:uid(),title:t.title,deadline:t.deadline||null,notes:t.notes||null,source:src,done:false,addedAt:now()};}
 function makeDay(d,src){return{id:uid(),title:d.title,date:d.date,what:d.what||null,yearGroup:d.yearGroup||'both',source:src,reminderSent:false,addedAt:now()};}
 
-// ── UPDATED scanGmail: now fetches Sway newsletter content via Jina proxy ──
-async function scanGmail() {
-  const btn=document.getElementById('gmail-btn'), status=document.getElementById('gmail-status');
-  btn.disabled=true; btn.textContent='Scanning...'; status.textContent='Reading emails...';
-  const today=new Date().toISOString().split('T')[0];
-  try {
-    const token = await getValidToken();
-    const gmailRes = await fetch('/.netlify/functions/claude', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'read_gmail', access_token:token })
-    });
-    const { emails=[] } = await gmailRes.json();
-    if (!emails.length) { status.textContent='No emails found'; btn.disabled=false; btn.textContent='Scan inbox'; return; }
+// ── News tab ──
+async function loadNews(){
+  const btn=document.getElementById('news-btn');
+  const content=document.getElementById('news-content');
+  const fromEl=document.getElementById('news-from');
 
-    // For each email that contains Sway links, fetch the newsletter content via Jina
-    let swayFetched = 0;
-    const enrichedEmails = [];
-    for (const email of emails) {
-      let enriched = { ...email };
-      if (email.swayUrls && email.swayUrls.length > 0) {
-        status.textContent = `Fetching newsletter… (${email.subject.slice(0,40)}${email.subject.length>40?'…':''})`;
-        const swayTexts = [];
-        for (const swayUrl of email.swayUrls) {
-          try {
-            const swayRes = await fetch('/.netlify/functions/claude', {
-              method:'POST', headers:{'Content-Type':'application/json'},
-              body: JSON.stringify({ action:'fetch_sway', url:swayUrl })
+  btn.disabled=true; btn.classList.add('loading');
+  content.innerHTML='<div class="loading-row"><span class="spinner"></span>Finding latest newsletter…</div>';
+  fromEl.textContent='';
+
+  try {
+    const token=await getValidToken();
+
+    const gmailRes=await fetch('/.netlify/functions/claude',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'read_gmail',access_token:token})
+    });
+    const {emails=[]}=await gmailRes.json();
+
+    // Find the most recent email with a Sway link
+    const swayEmail=emails.find(e=>e.swayUrls&&e.swayUrls.length>0);
+    if(!swayEmail){
+      content.innerHTML=`<div class="news-empty"><strong>No newsletter found</strong>No emails with a Sway newsletter link were found in your inbox.<div class="news-hint">The school newsletter usually arrives as a Sway link from the school office.</div></div>`;
+      btn.disabled=false;btn.classList.remove('loading');return;
+    }
+
+    content.innerHTML='<div class="loading-row"><span class="spinner"></span>Fetching newsletter content…</div>';
+
+    // Fetch the Sway content via Jina proxy
+    let newsletterText='';
+    for(const swayUrl of swayEmail.swayUrls){
+      try{
+        const swayRes=await fetch('/.netlify/functions/claude',{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'fetch_sway',url:swayUrl})
+        });
+        const {text=''}=await swayRes.json();
+        if(text)newsletterText+=text+'\n\n';
+      }catch(e){}
+    }
+
+    if(!newsletterText.trim()){
+      content.innerHTML=`<div class="news-empty"><strong>Couldn't load newsletter</strong>The Sway link was found but the content couldn't be fetched right now — it may be temporarily blocked.<div class="news-hint">Try again in a moment, or open the link directly from your email.</div></div>`;
+      btn.disabled=false;btn.classList.remove('loading');return;
+    }
+
+    content.innerHTML='<div class="loading-row"><span class="spinner"></span>Summarising by year group…</div>';
+
+    const data=await callAPI(
+      [{role:'user',content:`Newsletter: ${swayEmail.subject} (${swayEmail.date})\n\n${newsletterText.slice(0,8000)}`}],
+      NEWS_SYSTEM
+    );
+    const parsed=parseNewsOut(data);
+
+    if(!parsed||(!parsed.yr2?.length&&!parsed.yr6?.length)){
+      content.innerHTML=`<div class="news-empty"><strong>Nothing to show</strong>The newsletter was fetched but didn't contain enough year group content to summarise.</div>`;
+      btn.disabled=false;btn.classList.remove('loading');return;
+    }
+
+    // Update the "from" line
+    fromEl.textContent=parsed.newsletterDate
+      ?`Newsletter dated ${parsed.newsletterDate}`
+      :`From: ${swayEmail.subject}`;
+
+    // Render Year 2 and Year 6 cards
+    const yr2Bullets=(parsed.yr2||[]).map(b=>`<div class="news-bullet"><div class="news-dot"></div><div class="news-bullet-text">${b}</div></div>`).join('');
+    const yr6Bullets=(parsed.yr6||[]).map(b=>`<div class="news-bullet"><div class="news-dot"></div><div class="news-bullet-text">${b}</div></div>`).join('');
+
+    content.innerHTML=`
+      <div class="yr-card yr2-card">
+        <div class="yr-card-head">
+          <span class="yr-pill yr2">Year 2</span>
+          <span class="yr-card-subtitle">What they've been up to</span>
+        </div>
+        ${yr2Bullets||'<div style="font-size:13px;color:var(--ink3);padding:4px 0;">Nothing specific for Year 2 in this newsletter.</div>'}
+      </div>
+      <div class="yr-card yr6-card">
+        <div class="yr-card-head">
+          <span class="yr-pill yr6">Year 6</span>
+          <span class="yr-card-subtitle">What they've been up to</span>
+        </div>
+        ${yr6Bullets||'<div style="font-size:13px;color:var(--ink3);padding:4px 0;">Nothing specific for Year 6 in this newsletter.</div>'}
+      </div>`;
+
+  }catch(e){
+    if(e.message==='Not signed in'){
+      content.innerHTML=`<div class="news-empty"><strong>Not signed in</strong>Please sign in to Gmail first via the Sources tab.</div>`;
+      updateGmailUI();
+    }else{
+      content.innerHTML=`<div class="news-empty"><strong>Something went wrong</strong>${e.message}<div class="news-hint">Try again in a moment.</div></div>`;
+    }
+  }
+
+  btn.disabled=false;btn.classList.remove('loading');
+}
+
+// ── Scan Gmail (tasks + events) ──
+async function scanGmail(){
+  const btn=document.getElementById('gmail-btn'),status=document.getElementById('gmail-status');
+  btn.disabled=true;btn.textContent='Scanning...';status.textContent='Reading emails...';
+  const today=new Date().toISOString().split('T')[0];
+  try{
+    const token=await getValidToken();
+    const gmailRes=await fetch('/.netlify/functions/claude',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({action:'read_gmail',access_token:token})
+    });
+    const {emails=[]}=await gmailRes.json();
+    if(!emails.length){status.textContent='No emails found';btn.disabled=false;btn.textContent='Scan inbox';return;}
+
+    let swayFetched=0;
+    const enrichedEmails=[];
+    for(const email of emails){
+      let enriched={...email};
+      if(email.swayUrls&&email.swayUrls.length>0){
+        status.textContent=`Fetching newsletter… (${email.subject.slice(0,40)}${email.subject.length>40?'…':''})`;
+        const swayTexts=[];
+        for(const swayUrl of email.swayUrls){
+          try{
+            const swayRes=await fetch('/.netlify/functions/claude',{
+              method:'POST',headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({action:'fetch_sway',url:swayUrl})
             });
-            const { text='' } = await swayRes.json();
-            if (text) swayTexts.push(text);
-          } catch(e) { /* skip failed Sway fetches silently */ }
+            const {text=''}=await swayRes.json();
+            if(text)swayTexts.push(text);
+          }catch(e){}
         }
-        if (swayTexts.length > 0) {
-          swayFetched++;
-          // Append newsletter content to this email's body for Claude to read
-          enriched.body = enriched.body + '\n\n[Newsletter content from Sway link]\n' + swayTexts.join('\n\n');
-        }
+        if(swayTexts.length>0){swayFetched++;enriched.body=enriched.body+'\n\n[Newsletter content]\n'+swayTexts.join('\n\n');}
       }
       enrichedEmails.push(enriched);
     }
 
-    status.textContent = swayFetched > 0
-      ? `Read ${emails.length} emails + ${swayFetched} newsletter${swayFetched!==1?'s':''}, extracting...`
-      : `Read ${emails.length} emails, extracting...`;
+    status.textContent=swayFetched>0
+      ?`Read ${emails.length} emails + ${swayFetched} newsletter${swayFetched!==1?'s':''}, extracting...`
+      :`Read ${emails.length} emails, extracting...`;
 
-    const emailText = enrichedEmails.map(e=>`From: ${e.from}\nSubject: ${e.subject}\nDate: ${e.date}\n\n${e.body}`).join('\n---\n');
-    const data = await callAPI([{role:'user',content:`Today is ${today}. Parent at Bovingdon Primary, children Year 2 and Year 6.\n\n${emailText.slice(0,12000)}`}], SYSTEM.replace('DATE_TODAY',today));
+    const emailText=enrichedEmails.map(e=>`From: ${e.from}\nSubject: ${e.subject}\nDate: ${e.date}\n\n${e.body}`).join('\n---\n');
+    const data=await callAPI([{role:'user',content:`Today is ${today}. Parent at Bovingdon Primary, children Year 2 and Year 6.\n\n${emailText.slice(0,12000)}`}],SYSTEM.replace('DATE_TODAY',today));
     const {tasks:nt=[],days:nd=[]}=parseOut(data);
-    const newTasks=nt.map(t=>makeTask(t,'gmail')); const newDays=nd.map(d=>makeDay(d,'gmail'));
-    tasks=[...newTasks,...tasks]; days=[...newDays,...days];
-    saveTasks(); saveDays(); renderAll(); checkReminders(newDays);
+    const newTasks=nt.map(t=>makeTask(t,'gmail'));const newDays=nd.map(d=>makeDay(d,'gmail'));
+    tasks=[...newTasks,...tasks];days=[...newDays,...days];
+    saveTasks();saveDays();renderAll();checkReminders(newDays);
     showTab(newDays.length>0?'days':'tasks');
     status.textContent=`Found ${newTasks.length} task${newTasks.length!==1?'s':''}, ${newDays.length} event${newDays.length!==1?'s':''}`;
-  } catch(e) {
-    status.textContent = e.message==='Not signed in' ? 'Please sign in first' : 'Error — try again';
-    if(e.message==='Not signed in') updateGmailUI();
+  }catch(e){
+    status.textContent=e.message==='Not signed in'?'Please sign in first':'Error — try again';
+    if(e.message==='Not signed in')updateGmailUI();
   }
-  btn.disabled=false; btn.textContent='Scan inbox';
+  btn.disabled=false;btn.textContent='Scan inbox';
 }
 
-async function handleUpload(e) {
-  const file=e.target.files[0]; if(!file) return;
+async function handleUpload(e){
+  const file=e.target.files[0];if(!file)return;
   const label=document.getElementById('upload-label');
   label.childNodes[0].textContent='Processing...';
-  const text=await file.text(); const today=new Date().toISOString().split('T')[0];
-  try {
+  const text=await file.text();const today=new Date().toISOString().split('T')[0];
+  try{
     const data=await callAPI([{role:'user',content:`Today is ${today}. Parent at Bovingdon Primary, Year 2 and Year 6.\n\n${text.slice(-15000)}`}],SYSTEM.replace('DATE_TODAY',today));
     const {tasks:nt=[],days:nd=[]}=parseOut(data);
-    const newTasks=nt.map(t=>makeTask(t,'whatsapp')); const newDays=nd.map(d=>makeDay(d,'whatsapp'));
-    tasks=[...newTasks,...tasks]; days=[...newDays,...days];
-    saveTasks(); saveDays(); renderAll(); checkReminders(newDays);
+    const newTasks=nt.map(t=>makeTask(t,'whatsapp'));const newDays=nd.map(d=>makeDay(d,'whatsapp'));
+    tasks=[...newTasks,...tasks];days=[...newDays,...days];
+    saveTasks();saveDays();renderAll();checkReminders(newDays);
     label.childNodes[0].textContent=`Done — ${newTasks.length} tasks, ${newDays.length} events`;
-  } catch(e){label.childNodes[0].textContent='Error — try again';}
+  }catch(e){label.childNodes[0].textContent='Error — try again';}
 }
 
-async function extractPaste() {
-  const text=document.getElementById('wa-paste').value.trim(); if(!text) return;
+async function extractPaste(){
+  const text=document.getElementById('wa-paste').value.trim();if(!text)return;
   const status=document.getElementById('paste-status');
   status.innerHTML='<div class="loading-row"><span class="spinner"></span>Extracting...</div>';
   const today=new Date().toISOString().split('T')[0];
-  try {
+  try{
     const data=await callAPI([{role:'user',content:`Today is ${today}. Parent at Bovingdon Primary, Year 2 and Year 6.\n\n${text.slice(-15000)}`}],SYSTEM.replace('DATE_TODAY',today));
     const {tasks:nt=[],days:nd=[]}=parseOut(data);
-    const newTasks=nt.map(t=>makeTask(t,'whatsapp')); const newDays=nd.map(d=>makeDay(d,'whatsapp'));
-    tasks=[...newTasks,...tasks]; days=[...newDays,...days];
-    saveTasks(); saveDays(); renderAll(); checkReminders(newDays);
+    const newTasks=nt.map(t=>makeTask(t,'whatsapp'));const newDays=nd.map(d=>makeDay(d,'whatsapp'));
+    tasks=[...newTasks,...tasks];days=[...newDays,...days];
+    saveTasks();saveDays();renderAll();checkReminders(newDays);
     document.getElementById('wa-paste').value='';
     const total=newTasks.length+newDays.length;
     status.innerHTML=total>0?'':`<div class="notice">Nothing actionable found.</div>`;
-    if(total>0) showTab(newDays.length>0?'days':'tasks');
-  } catch(e){status.innerHTML='<div class="notice">Error — please try again.</div>';}
+    if(total>0)showTab(newDays.length>0?'days':'tasks');
+  }catch(e){status.innerHTML='<div class="notice">Error — please try again.</div>';}
 }
 
-function renderAll() { renderTasks(); renderDays(); renderAlerts(); }
+function renderAll(){renderTasks();renderDays();renderAlerts();}
 updateGmailUI();
 renderAll();
-if(reminderEmail) document.getElementById('email-saved').textContent='Reminders going to '+reminderEmail;
+if(reminderEmail)document.getElementById('email-saved').textContent='Reminders going to '+reminderEmail;
 checkReminders(days);
-if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
 </script>
 </body>
 </html>
