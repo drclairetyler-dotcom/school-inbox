@@ -683,6 +683,7 @@ function parseOut(data) {
 function makeTask(t,src){return{id:uid(),title:t.title,deadline:t.deadline||null,notes:t.notes||null,source:src,done:false,addedAt:now()};}
 function makeDay(d,src){return{id:uid(),title:d.title,date:d.date,what:d.what||null,yearGroup:d.yearGroup||'both',source:src,reminderSent:false,addedAt:now()};}
 
+// ── UPDATED scanGmail: now fetches Sway newsletter content via Jina proxy ──
 async function scanGmail() {
   const btn=document.getElementById('gmail-btn'), status=document.getElementById('gmail-status');
   btn.disabled=true; btn.textContent='Scanning...'; status.textContent='Reading emails...';
@@ -695,8 +696,39 @@ async function scanGmail() {
     });
     const { emails=[] } = await gmailRes.json();
     if (!emails.length) { status.textContent='No emails found'; btn.disabled=false; btn.textContent='Scan inbox'; return; }
-    status.textContent = `Read ${emails.length} emails, extracting...`;
-    const emailText = emails.map(e=>`From: ${e.from}\nSubject: ${e.subject}\nDate: ${e.date}\n\n${e.body}`).join('\n---\n');
+
+    // For each email that contains Sway links, fetch the newsletter content via Jina
+    let swayFetched = 0;
+    const enrichedEmails = [];
+    for (const email of emails) {
+      let enriched = { ...email };
+      if (email.swayUrls && email.swayUrls.length > 0) {
+        status.textContent = `Fetching newsletter… (${email.subject.slice(0,40)}${email.subject.length>40?'…':''})`;
+        const swayTexts = [];
+        for (const swayUrl of email.swayUrls) {
+          try {
+            const swayRes = await fetch('/.netlify/functions/claude', {
+              method:'POST', headers:{'Content-Type':'application/json'},
+              body: JSON.stringify({ action:'fetch_sway', url:swayUrl })
+            });
+            const { text='' } = await swayRes.json();
+            if (text) swayTexts.push(text);
+          } catch(e) { /* skip failed Sway fetches silently */ }
+        }
+        if (swayTexts.length > 0) {
+          swayFetched++;
+          // Append newsletter content to this email's body for Claude to read
+          enriched.body = enriched.body + '\n\n[Newsletter content from Sway link]\n' + swayTexts.join('\n\n');
+        }
+      }
+      enrichedEmails.push(enriched);
+    }
+
+    status.textContent = swayFetched > 0
+      ? `Read ${emails.length} emails + ${swayFetched} newsletter${swayFetched!==1?'s':''}, extracting...`
+      : `Read ${emails.length} emails, extracting...`;
+
+    const emailText = enrichedEmails.map(e=>`From: ${e.from}\nSubject: ${e.subject}\nDate: ${e.date}\n\n${e.body}`).join('\n---\n');
     const data = await callAPI([{role:'user',content:`Today is ${today}. Parent at Bovingdon Primary, children Year 2 and Year 6.\n\n${emailText.slice(0,12000)}`}], SYSTEM.replace('DATE_TODAY',today));
     const {tasks:nt=[],days:nd=[]}=parseOut(data);
     const newTasks=nt.map(t=>makeTask(t,'gmail')); const newDays=nd.map(d=>makeDay(d,'gmail'));
