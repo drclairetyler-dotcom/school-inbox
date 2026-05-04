@@ -210,7 +210,7 @@ textarea { resize: vertical; min-height: 80px; }
   <div class="nav">
     <button class="nav-btn active" onclick="showTab('tasks')">Tasks</button>
     <button class="nav-btn" onclick="showTab('days')">Dates <span class="nav-badge" id="days-badge" style="display:none"></span></button>
-    <button class="nav-btn" onclick="showTab('news')">News</button>
+    
     <button class="nav-btn" onclick="showTab('sources')">Sources</button>
     <button class="nav-btn" onclick="showTab('add')">Add</button>
   </div>
@@ -245,27 +245,6 @@ textarea { resize: vertical; min-height: 80px; }
         <span id="past-arrow">▶</span> <span style="color:var(--ink3)">Past events (<span id="past-count">0</span>)</span>
       </button>
       <div id="past-list" style="display:none; margin-top:8px;"></div>
-    </div>
-
-    <!-- NEWS -->
-    <div class="tab-pane" id="pane-news">
-      <div class="news-header">
-        <div class="news-header-left">
-          <div class="news-header-title">What's been happening</div>
-          <div class="news-from" id="news-from">Latest Sway newsletter, summarised by year group</div>
-        </div>
-        <button class="news-refresh-btn" id="news-btn" onclick="loadNews()">
-          <span class="btn-spinner"></span>
-          <span class="btn-label">↻ Load newsletter</span>
-        </button>
-      </div>
-      <div id="news-content">
-        <div class="news-empty">
-          <strong>No newsletter loaded yet</strong>
-          Tap "Load newsletter" to fetch the latest<br>Sway newsletter from your Gmail.
-          <div class="news-hint">Make sure you're signed in to Gmail first (Sources tab).</div>
-        </div>
-      </div>
     </div>
 
     <!-- SOURCES -->
@@ -372,7 +351,7 @@ function saveTasks() { localStorage.setItem('si_tasks', JSON.stringify(tasks)); 
 function saveDays() { localStorage.setItem('si_days', JSON.stringify(days)); }
 
 function showTab(tab) {
-  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', ['tasks','days','news','sources','add'][i]===tab));
+  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', ['tasks','days','sources','add'][i]===tab));
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
   document.getElementById('pane-'+tab).classList.add('active');
 }
@@ -589,16 +568,7 @@ Return ONLY this JSON, no markdown:
 {"tasks":[{"title":"concise action","deadline":"YYYY-MM-DD or null","notes":"brief context or null"}],"days":[{"title":"event name","date":"YYYY-MM-DD","what":"what to bring/wear or null","yearGroup":"yr2 or yr6 or both"}]}
 Today is DATE_TODAY. Only extract future dates or overdue tasks.`;
 
-// System prompt for the News tab
-const NEWS_SYSTEM=`You are summarising a Bovingdon Primary Academy newsletter for a parent with one child in Year 2 and one in Year 6.
-The newsletter contains a section with year group headings. The text you receive may be jumbled due to a multi-column layout, but each year group's content is introduced by a heading that says exactly "Year 2", "Year 3", "Year 4", "Year 5", "Year 6" etc.
-To find Year 2 content: locate the text immediately following the label "Year 2" and before the next year group label (e.g. "Year 3"). Use ONLY that text.
-To find Year 6 content: locate the text immediately following the label "Year 6" (or "Year 5/6") and before the next section. Use ONLY that text.
-Ignore all content from Nursery, Reception, Year 1, Year 3, Year 4, Year 5.
-Summarise what the children have been doing: lessons, topics, projects, trips, events, achievements, creative work.
-Return ONLY this JSON, no markdown:
-{"yr2":["bullet 1","bullet 2","bullet 3"],"yr6":["bullet 1","bullet 2","bullet 3"],"newsletterDate":"date found in newsletter or null"}
-3–6 bullets each. Warm, conversational tone, as if telling a parent what their child has been up to this week.`;
+
 
 function parseOut(data){
   const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
@@ -607,111 +577,12 @@ function parseOut(data){
   try{return JSON.parse(match[0]);}catch(e){return{tasks:[],days:[]};}
 }
 
-function parseNewsOut(data){
-  const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n');
-  const match=text.replace(/```json|```/g,'').trim().match(/\{[\s\S]*\}/);
-  if(!match)return null;
-  try{return JSON.parse(match[0]);}catch(e){return null;}
-}
+
 
 function makeTask(t,src){return{id:uid(),title:t.title,deadline:t.deadline||null,notes:t.notes||null,source:src,done:false,addedAt:now()};}
 function makeDay(d,src){return{id:uid(),title:d.title,date:d.date,what:d.what||null,yearGroup:d.yearGroup||'both',source:src,reminderSent:false,addedAt:now()};}
 
-// ── News tab ──
-async function loadNews(){
-  const btn=document.getElementById('news-btn');
-  const content=document.getElementById('news-content');
-  const fromEl=document.getElementById('news-from');
 
-  btn.disabled=true; btn.classList.add('loading');
-  content.innerHTML='<div class="loading-row"><span class="spinner"></span>Finding latest newsletter…</div>';
-  fromEl.textContent='';
-
-  try {
-    const token=await getValidToken();
-
-    const gmailRes=await fetch('/.netlify/functions/claude',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'read_gmail',access_token:token})
-    });
-    const {emails=[]}=await gmailRes.json();
-
-    // Find the most recent email with a Sway link
-    const swayEmail=emails.find(e=>e.swayUrls&&e.swayUrls.length>0);
-    if(!swayEmail){
-      content.innerHTML=`<div class="news-empty"><strong>No newsletter found</strong>No emails with a Sway newsletter link were found in your inbox.<div class="news-hint">The school newsletter usually arrives as a Sway link from the school office.</div></div>`;
-      btn.disabled=false;btn.classList.remove('loading');return;
-    }
-
-    content.innerHTML='<div class="loading-row"><span class="spinner"></span>Fetching newsletter content…</div>';
-
-    // Fetch the Sway content via Jina proxy
-    let newsletterText='';
-    for(const swayUrl of swayEmail.swayUrls){
-      try{
-        const swayRes=await fetch('/.netlify/functions/claude',{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({action:'fetch_sway',url:swayUrl})
-        });
-        const {text=''}=await swayRes.json();
-        if(text)newsletterText+=text+'\n\n';
-      }catch(e){}
-    }
-
-    if(!newsletterText.trim()){
-      content.innerHTML=`<div class="news-empty"><strong>Couldn't load newsletter</strong>The Sway link was found but the content couldn't be fetched right now — it may be temporarily blocked.<div class="news-hint">Try again in a moment, or open the link directly from your email.</div></div>`;
-      btn.disabled=false;btn.classList.remove('loading');return;
-    }
-
-    content.innerHTML='<div class="loading-row"><span class="spinner"></span>Summarising by year group…</div>';
-
-    const data=await callAPI(
-      [{role:'user',content:`Newsletter: ${swayEmail.subject} (${swayEmail.date})\n\n${newsletterText.slice(0,8000)}`}],
-      NEWS_SYSTEM
-    );
-    const parsed=parseNewsOut(data);
-
-    if(!parsed||(!parsed.yr2?.length&&!parsed.yr6?.length)){
-      content.innerHTML=`<div class="news-empty"><strong>Nothing to show</strong>The newsletter was fetched but didn't contain enough year group content to summarise.</div>`;
-      btn.disabled=false;btn.classList.remove('loading');return;
-    }
-
-    // Update the "from" line
-    fromEl.textContent=parsed.newsletterDate
-      ?`Newsletter dated ${parsed.newsletterDate}`
-      :`From: ${swayEmail.subject}`;
-
-    // Render Year 2 and Year 6 cards
-    const yr2Bullets=(parsed.yr2||[]).map(b=>`<div class="news-bullet"><div class="news-dot"></div><div class="news-bullet-text">${b}</div></div>`).join('');
-    const yr6Bullets=(parsed.yr6||[]).map(b=>`<div class="news-bullet"><div class="news-dot"></div><div class="news-bullet-text">${b}</div></div>`).join('');
-
-    content.innerHTML=`
-      <div class="yr-card yr2-card">
-        <div class="yr-card-head">
-          <span class="yr-pill yr2">Year 2</span>
-          <span class="yr-card-subtitle">What they've been up to</span>
-        </div>
-        ${yr2Bullets||'<div style="font-size:13px;color:var(--ink3);padding:4px 0;">Nothing specific for Year 2 in this newsletter.</div>'}
-      </div>
-      <div class="yr-card yr6-card">
-        <div class="yr-card-head">
-          <span class="yr-pill yr6">Year 6</span>
-          <span class="yr-card-subtitle">What they've been up to</span>
-        </div>
-        ${yr6Bullets||'<div style="font-size:13px;color:var(--ink3);padding:4px 0;">Nothing specific for Year 6 in this newsletter.</div>'}
-      </div>`;
-
-  }catch(e){
-    if(e.message==='Not signed in'){
-      content.innerHTML=`<div class="news-empty"><strong>Not signed in</strong>Please sign in to Gmail first via the Sources tab.</div>`;
-      updateGmailUI();
-    }else{
-      content.innerHTML=`<div class="news-empty"><strong>Something went wrong</strong>${e.message}<div class="news-hint">Try again in a moment.</div></div>`;
-    }
-  }
-
-  btn.disabled=false;btn.classList.remove('loading');
-}
 
 // ── Scan Gmail (tasks + events) ──
 async function scanGmail(){
