@@ -591,9 +591,12 @@ Today is DATE_TODAY. Only extract future dates or overdue tasks.`;
 
 // System prompt for the News tab
 const NEWS_SYSTEM=`You are summarising a Bovingdon Primary Academy newsletter for a parent with one child in Year 2 and one in Year 6.
-Read the newsletter and produce TWO short summaries describing what the children have been doing recently: lessons, topics, projects, trips, events, achievements, creative work — anything interesting about their school life.
-Focus on things the children have DONE or are currently learning, not upcoming events or admin tasks.
-If the newsletter doesn't explicitly separate year groups, use context to assign content to the most likely year group.
+The newsletter has a section called "Children of Bovingdon" which contains subsections with explicit year group headings: Nursery, Year 1, Year 2, Year 3, Year 4, Year 5, Year 6 (or similar).
+Each heading is followed by content about only that year group.
+Extract ONLY the content from the "Year 2" section for the yr2 summary, and ONLY the content from the "Year 6" section (which may be labelled "Year 5/6" or "Year 6") for the yr6 summary.
+Do not include content from any other year group sections.
+Summarise what the children have been doing recently: lessons, topics, projects, trips, events, achievements, creative work.
+Focus on things the children have DONE or are currently learning, not upcoming events or admin.
 Return ONLY this JSON, no markdown:
 {"yr2":["bullet 1","bullet 2","bullet 3"],"yr6":["bullet 1","bullet 2","bullet 3"],"newsletterDate":"date found in newsletter or null"}
 Each array should have 3–6 bullets. Write warmly and conversationally, as if telling a parent what their child has been up to this week.`;
